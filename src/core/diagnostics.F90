@@ -30,7 +30,7 @@ MODULE diagnostics
 
   PRIVATE
 
-  PUBLIC :: output_routines, output_diags, energy_correction, write_file, setup_files
+  PUBLIC :: output_routines, output_diags, output_snap, energy_correction, write_file, setup_files
 
   REAL(dbl) :: visc_heating
   LOGICAL, SAVE :: visc_heating_updated = .FALSE.
@@ -67,7 +67,6 @@ CONTAINS
           write (filename, "(A17,I3,A3)") "./diagnostics/run", int(run_id), ".nc"
       end if
 
-
       !Write to diagnostics file, using netcdf
       call try(nf90_create(trim(filename), nf90_clobber, ncid))
       call try(nf90_def_dim(ncid, 'ndiags', ndiags+1, nd_id))  !Make up fake dimensions here
@@ -83,6 +82,104 @@ CONTAINS
       diag_num = diag_num + 1
 
   END SUBROUTINE output_diags
+
+
+SUBROUTINE output_snap(snap_num)
+    !Exports the magnetic field at this plot_num to an appropriate netcdf file
+    IMPLICIT NONE
+
+    CHARACTER(LEN =64):: output_filename
+    INTEGER:: snap_num, proc_write
+    INTEGER:: ncid, vid
+    INTEGER:: xs_id, ys_id, zs_id
+    INTEGER:: xc_id, yc_id, zc_id
+    INTEGER:: bx_id, by_id, bz_id
+    INTEGER:: en_id, rho_id
+
+    if (snap_num < 10) then
+        write (output_filename, "(A7,A3,I1,A3)") "./Data/", "000", snap_num, ".nc"
+    else if (snap_num < 100) then
+        write (output_filename, "(A7,A2,I2,A3)") "./Data/", "00", snap_num, ".nc"
+    else if (snap_num < 1000) then
+        write (output_filename, "(A7,A1,I3,A3)")  "./Data/", "0", snap_num, ".nc"
+    else if (snap_num < 10000) then
+        write (output_filename, "(A7,I4,A3)")  "./Data/", snap_num, ".nc"
+    end if
+
+    if (rank == 0) then
+    call try(nf90_create(trim(output_filename), nf90_clobber, ncid))
+
+    call try(nf90_def_dim(ncid, 'xs', nx_global+1, xs_id))
+    call try(nf90_def_dim(ncid, 'ys', ny_global+1, ys_id))
+    call try(nf90_def_dim(ncid, 'zs', nz_global+1, zs_id))
+
+    call try(nf90_def_dim(ncid, 'xc', nx_global, xc_id))
+    call try(nf90_def_dim(ncid, 'yc', ny_global, yc_id))
+    call try(nf90_def_dim(ncid, 'zc', nz_global, zc_id))
+
+    call try(nf90_def_var(ncid, 'bx', nf90_double, (/xs_id ,yc_id, zc_id/), bx_id))
+    call try(nf90_def_var(ncid, 'by', nf90_double, (/xc_id ,ys_id, zc_id/), by_id))
+    call try(nf90_def_var(ncid, 'bz', nf90_double, (/xc_id ,yc_id, zs_id/), bz_id))
+
+    call try(nf90_def_var(ncid, 'en', nf90_double, (/xc_id ,yc_id, zc_id/), en_id))
+    call try(nf90_def_var(ncid, 'rho', nf90_double, (/xc_id ,yc_id, zc_id/), rho_id))
+
+
+
+    call try(nf90_enddef(ncid))
+    call try(nf90_close(ncid))
+
+    end if
+    call MPI_BARRIER(comm,errcode)
+
+    !Each process writes data in turn
+
+    print*, maxval(bx), minval(bx)
+    do proc_write = 0 ,nproc-1
+        call MPI_BARRIER(comm,errcode)
+
+        if (rank == proc_write) then
+            call try(nf90_open(trim(output_filename), nf90_write, ncid))
+
+            call try(nf90_inq_varid(ncid, 'bx', vid))
+            call try(nf90_put_var(ncid, vid, bx(0:nx,1:ny,1:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx+1,ny,nz/)))
+
+            call try(nf90_inq_varid(ncid, 'by', vid))
+            call try(nf90_put_var(ncid, vid, by(1:nx,0:ny,1:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny+1,nz/)))
+
+            call try(nf90_inq_varid(ncid, 'bz', vid))
+            call try(nf90_put_var(ncid, vid, bz(1:nx,1:ny,0:nz), &
+                 start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz+1/)))
+
+            call try(nf90_inq_varid(ncid, 'en', vid))
+            call try(nf90_put_var(ncid, vid, energy(1:nx,1:ny,1:nz), &
+                 start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz/)))
+
+            call try(nf90_inq_varid(ncid, 'rho', vid))
+            call try(nf90_put_var(ncid, vid, rho(1:nx,1:ny,1:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz/)))
+
+            call try(nf90_close(ncid))
+
+        end if
+        call MPI_BARRIER(comm,errcode)
+
+    end do
+
+
+    call mpi_barrier(comm, errcode)
+    if (rank == 0) print*, 'Saved snapshot number', snap_num, ' at time', time, 'to file ', output_filename
+
+    snap_num = snap_num + 1
+    return
+
+
+END SUBROUTINE output_snap
+
+
+
 
   SUBROUTINE try(status)
     ! Catch error in reading netcdf field.

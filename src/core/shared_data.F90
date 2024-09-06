@@ -235,6 +235,8 @@ MODULE shared_data
   INTEGER:: run_id, nplots, ndiags
   INTEGER:: diag_num, snap_num
 
+  REAL(num):: bfield_fact
+  INTEGER, DIMENSION(3):: starts
   !Outputs
   REAL(num), DIMENSION(:), ALLOCATABLE:: diag_time
 

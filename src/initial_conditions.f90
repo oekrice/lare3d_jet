@@ -17,6 +17,7 @@ MODULE initial_conditions
   USE shared_data
   USE neutral
   USE boundary
+  USE netcdf
 
   IMPLICIT NONE
 
@@ -46,9 +47,7 @@ CONTAINS
 
     REAL(num), DIMENSION(:,:,:), ALLOCATABLE :: temperature
     REAL(num) :: xi_v, amp, centre, width
-
     ! Below are all the variables which must be defined and their sizes
-
     vx(-2:nx+2, -2:ny+2, -2:nz+2) = 0.0_num
     vy(-2:nx+2, -2:ny+2, -2:nz+2) = 0.0_num
     vz(-2:nx+2, -2:ny+2, -2:nz+2) = 0.0_num
@@ -103,8 +102,8 @@ CONTAINS
       END DO
     END IF    
   
-    ! An example for setting up simple potential field
-    CALL potential_field
+    ! Import initial magnetic field
+    CALL import_bfield
 
   END SUBROUTINE set_initial_conditions
   
@@ -295,6 +294,55 @@ CONTAINS
 
   END SUBROUTINE potential_field
 
+  SUBROUTINE import_bfield()
+
+    ! Imports the initial condition from the inits file.
+    ! Will try to be smart with this, such that the vector potential is only read in in individual processes
+
+    CHARACTER(LEN =64):: init_filename
+    INTEGER:: ncid, vid, run_id
+
+    if (run_id < 10) then
+      write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(run_id), '.nc'
+    else if (run_id < 100) then
+      write (init_filename, "(A12, A1, I2, A3)") './inits/init', '0', int(run_id), '.nc'
+    else
+      write (init_filename, "(A12, I3, A3)") './inits/init', int(run_id), '.nc'
+    end if
+
+    if (rank == 0) print*, 'Initial condition filename', trim(init_filename)
+
+    call try(nf90_open(trim(init_filename), nf90_nowrite, ncid))
+
+    call try(nf90_inq_varid(ncid, 'bx', vid))
+    call try(nf90_get_var(ncid, vid, bx(0:nx,1:ny,1:nz), &
+    start = (/starts(1)+1,starts(2)+1,starts(3)+1/),count = (/nx+1,ny,nz/)))
+
+    call try(nf90_inq_varid(ncid, 'by', vid))
+    call try(nf90_get_var(ncid, vid, by(1:nx,0:ny,1:nz), &
+    start = (/starts(1)+1,starts(2)+1,starts(3)+1/),count = (/nx,ny+1,nz/)))
+
+    call try(nf90_inq_varid(ncid, 'bz', vid))
+    call try(nf90_get_var(ncid, vid, bz(1:nx,1:ny,0:nz), &
+    start = (/starts(1)+1,starts(2)+1,starts(3)+1/),count = (/nx,ny,nz+1/)))
+
+    call try(nf90_close(ncid))
+
+    bx = bx*bfield_fact
+    by = by*bfield_fact
+    bz = bz*bfield_fact
+
+END SUBROUTINE import_bfield
+
+SUBROUTINE try(status)
+! Catch error in reading netcdf fild.
+INTEGER, INTENT(IN):: status
+
+if (status /= NF90_noerr) THEN
+    PRINT*,TRIM(ADJUSTL(NF90_STRERROR(status)))
+end if
+
+END SUBROUTINE try
 
 
 END MODULE initial_conditions

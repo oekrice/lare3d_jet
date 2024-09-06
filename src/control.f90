@@ -133,11 +133,12 @@ CONTAINS
     z_max = vars(13)
     ! Should the z grid be stretched or uniform
     z_stretch = .FALSE.
-
     ! Ndiags and nplots
-    nplots = int(4)
-    ndiags = int(5)
+    nplots = int(vars(4))
+    ndiags = int(vars(5))
 
+    !Magnetic field factor
+    bfield_fact = vars(6)
     ! Turn on or off the resistive parts of the MHD equations
     resistive_mhd = .FALSE.
 
@@ -233,6 +234,12 @@ CONTAINS
     !Counters for the outputs
     diag_num = 0
     snap_num = 0
+
+    if (rank == 0) then
+      print*, 'Resolutions', nx_global, ny_global, nz_global
+      print*, 'Ranges', x_min, x_max, y_min, y_max, z_min, z_max
+      print*, 'Noutputs', nplots, ndiags
+    end if
 
   END SUBROUTINE control_variables
 

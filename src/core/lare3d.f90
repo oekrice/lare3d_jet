@@ -52,6 +52,8 @@ PROGRAM lare3d
 
   CALL grid                      ! setup.f90
 
+  if (rank == 0) print*, 'Grid set up. Attempting initial conditions...'
+
   IF (IAND(initial, IC_RESTART) /= 0) THEN
     CALL set_initial_conditions  ! required to reset gravity
     CALL restart_data            ! setup.f90
@@ -81,9 +83,16 @@ PROGRAM lare3d
 
     if (time .ge. t_end*float(diag_num)/float(ndiags)) then   ! Save diagnostic data (more frequently than snapshots)
       !CALL test1
-      print*, 'Diagnostic number', diag_num, 'at time', time
+      if (rank == 0) print*, 'Diagnostic number', diag_num, 'at time', time
       CALL output_diags(diag_num)
     end if
+
+    if (time .ge. t_end*float(snap_num)/float(nplots)) then   ! Save diagnostic data (more frequently than snapshots)
+      !CALL test1
+      !if (rank == 0) print*, 'Snap Number', snap_num, 'at time', time
+      CALL output_snap(snap_num)
+    end if
+
 
     IF ((step >= nsteps .AND. nsteps >= 0) .OR. (time >= t_end)) EXIT
     step = step + 1

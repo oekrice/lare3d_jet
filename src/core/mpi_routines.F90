@@ -222,12 +222,18 @@ CONTAINS
     y_coords = coordinates(c_ndims-1)
     z_coords = coordinates(c_ndims-2)
 
+
     ! Create the subarray for this problem: subtype decribes where this
     ! process's data fits into the global picture.
 
     nx0 = nx_global / nprocx
     ny0 = ny_global / nprocy
     nz0 = nz_global / nprocz
+
+    ! set up the starting point for my subgrid (assumes arrays start at 0)
+    starts(1) = int(coordinates(3) * nx0)
+    starts(2) = int(coordinates(2) * ny0)
+    starts(3) = int(coordinates(1) * nz0)
 
     ! If the number of gridpoints cannot be exactly subdivided then fix
     ! The first nxp processors have nx0 grid points

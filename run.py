@@ -18,11 +18,19 @@ from numpy import random
 import time
 from scipy.io import netcdf_file
 from init_bfield import compute_initial_condition
+import matplotlib.pyplot as plt
 
 #os.system('killall mf2d')
 
-run = 0
-ncores = 1
+if len(sys.argv) > 1:
+    run = int(sys.argv[1])
+else:
+    run = 0
+
+if len(sys.argv) > 2:
+    ncores = int(sys.argv[2])
+else:
+    ncores = 1
 
 if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
     hamilton_flag = 1
@@ -33,12 +41,12 @@ nx = 96
 ny = 96
 nz = 96
 
-x0 = -0.5; x1 = 0.5
-y0 = -0.5; y1 = 0.5
-z0 = -1.0/ny; z1 = 1.0
+x0 = -12.; x1 = 12.
+y0 = -12.; y1 = 12.
+z0 = -1.0/ny; z1 = 24.
 
 shearfact = 1.0
-bfact = 1.0
+bfact = 3.7e-5
 
 nplots = 10
 ndiags = 100
@@ -63,14 +71,13 @@ variables[9] = y0
 variables[10] = y1
 variables[11] = z0
 variables[12] = z1
-variables[13] = ny
-variables[14] = nx
+variables[13] = nx
+variables[14] = ny
 variables[15] = nz
-
 variables[16] = hamilton_flag
 
 
-if True:
+if False:
     class Grid():
         def __init__(self):
             self.x0 = x0; self.x1 = x1
@@ -94,6 +101,9 @@ if True:
                 lbound_fn[i,j] = sf**3*dipole_mag*(2*(zstar)**2 - ((xi)**2 + (yj)**2))/(((xi)**2 + (yj)**2 + (zstar)**2)**2.5)
         print('Max lbound', np.max(lbound_fn))
         print('Lbound flux', np.sum(np.abs(lbound_fn)))
+
+        plt.pcolormesh(lbound_fn)
+        plt.show()
         return lbound_fn
 
     #Make initial jet condition
