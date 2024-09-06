@@ -120,7 +120,7 @@ ifeq ($(strip $(COMPILER)),hector)
 endif
 
 
-MPIF90 ?= mpif90
+MPIF90 ?= /usr/lib64/openmpi/bin/mpif90
 FFLAGS += -I$(SDF)/include
 FFLAGS += $(MODULEFLAG)
 LDFLAGS = $(FFLAGS) -L$(SDF)/lib -lsdf
