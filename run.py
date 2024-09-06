@@ -28,23 +28,20 @@ if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
 else:
     hamilton_flag = 0
 
-print(hamilton_flag)
-
-time_unit = 1   #time unit in days. LARE seems to prefer values of around unity so do have to be careful
-voutfact = 0.0
-
 nx = 64
 ny = 64
+nz = 64
 
 x0 = -0.5; x1 = 0.5
-y0 = -1.0/ny; y1 = 1.0
+y0 = -0.5; y1 = 0.5
+z0 = -1.0/ny; z1 = 1.0
 
 shearfact = 1.0
 bfact = 1.0
 
-nplots = 50
-ndiags = 600
-tmax = 150.0/time_unit
+nplots = 10
+ndiags = 100
+tmax = 1.0
 
 eta = 1e-6
 
@@ -56,23 +53,23 @@ variables[0] = run
 variables[1] = nx
 variables[2] = tmax
 variables[3] = nplots
-variables[4] = 5.0
+variables[4] = ndiags
 variables[5] = bfact
 variables[6] = shearfact
-variables[10] = x0
-variables[11] = x1
-variables[12] = y0
-variables[13] = y1
+variables[7] = x0
+variables[8] = x1
+variables[9] = y0
+variables[10] = y1
+variables[11] = z0
+variables[12] = z1
+variables[13] = ny
+variables[14] = nx
+variables[15] = nz
 
-variables[18] = hamilton_flag
-variables[19] = ndiags
-
-variables[20] = ny
-variables[21] = nx   #init id  (id of initial condition)
+variables[16] = hamilton_flag
 
 
-if True:
-    os.system('make COMPILER=gfortran')
+os.system('make')
 
 np.savetxt('parameters/variables%03d.txt' % run, variables)   #variables numbered based on run number (up to 1000)
 
@@ -80,4 +77,4 @@ np.savetxt('parameters/variables%03d.txt' % run, variables)   #variables numbere
 #compute_initial_condition(Grid(), lbound_fn, run)
 
 if hamilton_flag < 0.5:
-    os.system('/usr/lib64/openmpi/bin/mpiexec -np %d ./bin/lare3d' % (ncores))
+    os.system('/usr/lib64/openmpi/bin/mpiexec -np %d ./bin/lare3d %d' % (ncores, run))

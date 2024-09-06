@@ -24,17 +24,76 @@ MODULE diagnostics
   USE conduct
   USE sdf
   USE version_data
+  USE netcdf
 
   IMPLICIT NONE
 
   PRIVATE
 
-  PUBLIC :: output_routines, energy_correction, write_file, setup_files
+  PUBLIC :: output_routines, output_diags, energy_correction, write_file, setup_files
 
   REAL(dbl) :: visc_heating
   LOGICAL, SAVE :: visc_heating_updated = .FALSE.
 
 CONTAINS
+
+  !****************************************************************************
+  ! My diagnostic functions (same as for mf2d)
+  !****************************************************************************
+
+  SUBROUTINE output_diags(diag_num)
+      !Calculates some diagnostics and saves to netcdf file as for the triangle code, which was fairly neat (if i say so myself...). Should make for easy pythonning.
+      IMPLICIT NONE
+      INTEGER:: diag_num
+      REAL(num):: diag
+      character(len=100):: filename
+      integer:: id_1, id_2, id_3, id_4, id_5, id_6, id_7, id_8, ncid, nd_id
+
+      !Allocate diagnostic arrays
+      if (diag_num == 0) then
+          allocate(diag_time(0:ndiags))
+      end if
+
+      !TIME
+      diag = time
+      diag_time(diag_num) = time
+
+      !ADMIN
+      if (run_id < 10) then
+      write (filename, "(A19,I1,A3)") "./diagnostics/run00", int(run_id), ".nc"
+      else if (run_id < 100) then
+          write (filename, "(A18,I2,A3)") "./diagnostics/run0", int(run_id), ".nc"
+      else
+          write (filename, "(A17,I3,A3)") "./diagnostics/run", int(run_id), ".nc"
+      end if
+
+
+      !Write to diagnostics file, using netcdf
+      call try(nf90_create(trim(filename), nf90_clobber, ncid))
+      call try(nf90_def_dim(ncid, 'ndiags', ndiags+1, nd_id))  !Make up fake dimensions here
+
+      call try(nf90_def_var(ncid, 'time', nf90_double, (/nd_id/), id_1))
+      call try(nf90_enddef(ncid))
+
+      call try(nf90_put_var(ncid, id_1, diag_time))
+
+
+      call try(nf90_close(ncid))
+
+      diag_num = diag_num + 1
+
+  END SUBROUTINE output_diags
+
+  SUBROUTINE try(status)
+    ! Catch error in reading netcdf field.
+    INTEGER, INTENT(IN):: status
+
+    if (status /= NF90_noerr) THEN
+        PRINT*,TRIM(ADJUSTL(NF90_STRERROR(status)))
+    end if
+
+  END SUBROUTINE try
+
 
   !****************************************************************************
   ! Call the output routines

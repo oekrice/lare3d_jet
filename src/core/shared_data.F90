@@ -129,7 +129,7 @@ MODULE shared_data
   REAL(num) :: x_min, x_max, length_x
   REAL(num) :: y_min, y_max, length_y
   REAL(num) :: z_min, z_max, length_z
-  REAL(num) :: gamma, eta0, j_max, dt_snapshots, eta_background
+  REAL(num) :: gamma, eta0, j_max, dt_snapshots, dt_diags, eta_background
   REAL(num) :: total_visc_heating = 0.0_num, total_ohmic_heating = 0.0_num
 
   INTEGER :: xbc_min, xbc_max, ix, ixm, ixp, xpass
@@ -231,6 +231,13 @@ MODULE shared_data
 
   INTEGER, PARAMETER :: stat_unit = 20
   INTEGER, PARAMETER :: en_unit = 30
+
+  INTEGER:: run_id, nplots, ndiags
+  INTEGER:: diag_num, snap_num
+
+  !Outputs
+  REAL(num), DIMENSION(:), ALLOCATABLE:: diag_time
+
 
 END MODULE shared_data
 

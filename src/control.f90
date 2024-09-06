@@ -69,17 +69,38 @@ CONTAINS
 
   SUBROUTINE control_variables
 
+    REAL(num), DIMENSION(30):: vars
+
+    CHARACTER(LEN=64):: input_value
+
+    CHARACTER(LEN=64):: parameter_filename
+    call get_command_argument(1, input_value)
+    read(unit=input_value,fmt=*) run_id
+
+    if (run_id < 10) then
+      write (parameter_filename, "(A22, A2, I1, A4)") './parameters/variables', '00', int(run_id), '.txt'
+    else if (run_id < 100) then
+      write (parameter_filename, "(A22, A1, I2, A4)") './parameters/variables', '0', int(run_id), '.txt'
+    else
+      write (parameter_filename, "(A22, I3, A4)") './parameters/variables', int(run_id), '.txt'
+    end if
+
+    OPEN(1, FILE = parameter_filename)
+    READ(1, *) vars
+    CLOSE(1)
+
+    run_id = vars(1)
     ! Set the number of gridpoints in x and y directions
-    nx_global = 64
-    ny_global = 64
-    nz_global = 64
+    nx_global = int(vars(14))
+    ny_global = int(vars(15))
+    nz_global = int(vars(16))
 
     ! Set the maximum number of iterations of the core solver before the code
     ! terminates. If nsteps < 0 then the code will run until t = t_end
-    nsteps = 1
+    nsteps = -1
 
     ! The maximum runtime of the code
-    t_end = 6.0_num
+    t_end = vars(3)
 
     ! Shock viscosities as detailed in manual - they are dimensionless
     visc1 = 0.1_num
@@ -96,22 +117,26 @@ CONTAINS
     nprocz = 0
 
     ! The length of the domain in the x direction
-    x_min = 0.0_num
-    x_max = 14.0_num
+    x_min = vars(8)
+    x_max = vars(9)
     ! Should the x grid be stretched or uniform
     x_stretch = .FALSE.
 
     ! The length of the domain in the y direction
-    y_min = -7.0_num
-    y_max = 7.0_num
+    y_min = vars(10)
+    y_max = vars(11)
     ! Should the y grid be stretched or uniform
     y_stretch = .FALSE.
 
     ! The length of the domain in the z direction
-    z_min = 0.0_num
-    z_max = 14.0_num
+    z_min = vars(12)
+    z_max = vars(13)
     ! Should the z grid be stretched or uniform
     z_stretch = .FALSE.
+
+    ! Ndiags and nplots
+    nplots = int(4)
+    ndiags = int(5)
 
     ! Turn on or off the resistive parts of the MHD equations
     resistive_mhd = .FALSE.
@@ -205,6 +230,10 @@ CONTAINS
     cooling_term = .TRUE.
     alpha_av = 0.05_num
 
+    !Counters for the outputs
+    diag_num = 0
+    snap_num = 0
+
   END SUBROUTINE control_variables
 
 
@@ -219,7 +248,8 @@ CONTAINS
     data_dir = 'Data'
 
     ! The interval between output snapshots.
-    dt_snapshots = t_end / 100.0_num
+    dt_snapshots = t_end / nplots
+    dt_diags = t_end/ndiags
 
     ! dump_mask is an array which specifies which quantities the code should
     ! output to disk in a data dump.

@@ -4,51 +4,9 @@
 # eg. "export COMPILER=gfortran" can be added to $HOME/.bashrc
 
 
-# Compiler specific flags
-
-# Note: you MUST specify a COMPILER option. None are specified by default.
-
-ifeq ($(strip $(COMPILER)),)
-  MAKECMDGOALS = error
-error:
-	@echo '*** ERROR ***'
-	@echo 'You MUST set a value for the COMPILER variable'
-	@echo ' eg. "make COMPILER=intel"'
-	@echo 'Alternatively, you can add "export COMPILER=intel" to $$HOME/.bashrc'
-endif
-
 D = -D
+FFLAGS = -O3
 
-# PGI
-# ===
-ifeq ($(strip $(COMPILER)),pgi)
-  FFLAGS = -r8 -fast -fastsse -O3 -Mipa=fast,inline -Minfo # Optimised
-  ifeq ($(strip $(MODE)),debug)
-    FFLAGS = -Mbounds -g                                     # Debug
-  endif
-  MODULEFLAG = -module $(OBJDIR)
-endif
-
-# Intel
-# =====
-ifeq ($(strip $(COMPILER)),intel)
-  FFLAGS = -O3
-  #FFLAGS = -O3 -heap-arrays 64 -ipo -xHost # Optimised (B)
-  #FFLAGS = -O3 -heap-arrays 64 -ipo -xAVX  # Optimised (W)
-  ifeq ($(strip $(MODE)),debug)
-    FFLAGS = -O0 -fpe0 -nothreads -traceback -fltconsistency \
-             -C -g -heap-arrays 64 -warn -fpic
-    ifeq ($(strip $(SYSTEM)),Darwin)
-      FFLAGS += -Wl,-no_pie
-    endif
-  endif
-  MODULEFLAG = -module $(OBJDIR)
-endif
-
-# gfortran
-# ========
-ifeq ($(strip $(COMPILER)),gfortran)
-  FFLAGS = -O3
   ifeq ($(strip $(MODE)),debug)
     FFLAGS = -O0 -g -Wall -Wextra -pedantic -fbounds-check \
              -ffpe-trap=invalid,zero,overflow -Wno-unused-parameter \
@@ -78,53 +36,21 @@ ifeq ($(strip $(COMPILER)),gfortran)
       endif
     endif
   endif
-  MODULEFLAG = -I/usr/local/include -I$(OBJDIR) -J$(OBJDIR)
+  MODULEFLAG = -I/usr/include -I$(OBJDIR) -J$(OBJDIR)
+
+ifeq ($(shell hostname),hamilton8.dur.ac.uk)
+	MPIF90 ?= mpiifort
+	NETCDF = -I /usr/local/Cluster-Apps/netcdf-fortran/ompi/gcc/4.4.4/include
+	NETCDFLIB = -L/usr/local/Cluster-Apps/netcdf-fortran/ompi/gcc/4.4.4/lib  -lnetcdff
+else
+	MPIF90 ?= /usr/lib64/openmpi/bin/mpif90
+	NETCDF = -I /usr/lib64/gfortran/modules
+	NETCDFLIB = -L/usr/lib64/libnetcdff.so.7 -lnetcdff
 endif
 
-# g95
-# ========
-ifeq ($(strip $(COMPILER)),g95)
-  FFLAGS = -O3
-  ifeq ($(strip $(MODE)),debug)
-    FFLAGS = -O0 -g                                        # Debug
-  endif
-  MODULEFLAG = -fmod=$(OBJDIR)
-endif
-
-# IBM Bluegene
-# ============
-ifeq ($(strip $(COMPILER)),ibm)
-  FFLAGS = -O5 -qhot -qipa # Optimised
-  ifeq ($(strip $(MODE)),debug)
-    FFLAGS = -O0 -C -g -qfullpath -qinfo #-qkeepparm -qflttrap \
-          -qnosmp -qxflag=dvz -Q! -qnounwind -qnounroll # Debug
-    #FFLAGS = -O0 -qarch=qp -qtune=qp
-    #FFLAGS = -qthreaded -qsmp=noauto -qsmp=omp # Hybrid stuff
-  endif
-  MODULEFLAG = -I$(OBJDIR) -qmoddir=$(OBJDIR)
-  MPIF90 ?= mpixlf90_r
-
-  # IBM compiler needs a -WF to recognise preprocessor directives
-  D = -WF,-D
-endif
-
-# HECToR
-# ========
-ifeq ($(strip $(COMPILER)),hector)
-  FFLAGS = -O3
-  ifeq ($(strip $(MODE)),debug)
-    FFLAGS = -O0 -g -ea -ec -eC -eD -eI -en -hfp_trap -Ktrap=fp -m0 -M1438,7413
-  endif
-  MODULEFLAG = -em -I/usr/include -I$(OBJDIR) -J$(OBJDIR)
-  MPIF90 ?= ftn
-endif
-
-
-MPIF90 ?= /usr/lib64/openmpi/bin/mpif90
 FFLAGS += -I$(SDF)/include
 FFLAGS += $(MODULEFLAG)
 LDFLAGS = $(FFLAGS) -L$(SDF)/lib -lsdf
-
 # Set some of the build parameters
 TARGET = lare3d
 
@@ -200,14 +126,14 @@ endif
 # Rule to build the fortran files
 
 %.o: %.f90
-	$(FC) -c $(FFLAGS) -o $(OBJDIR)/$@ $<
+	$(FC) -c $(FFLAGS) $(NETCDF) -o $(OBJDIR)/$@ $<
 
 %.o: %.F90
-	$(FC) -c $(FFLAGS) -o $(OBJDIR)/$@ $(PREPROFLAGS) $<
+	$(FC) -c $(FFLAGS) $(NETCDF) -o $(OBJDIR)/$@ $(PREPROFLAGS) $<
 
 $(FULLTARGET): $(OBJFILES)
 	@mkdir -p $(BINDIR)
-	$(FC) -o $@ $(addprefix $(OBJDIR)/,$(OBJFILES)) $(LDFLAGS)
+	$(FC) -o $@ $(addprefix $(OBJDIR)/,$(OBJFILES)) $(LDFLAGS) $(NETCDFLIB)
 
 $(SDFMOD):
 	$(MAKE) -C $(SDF)

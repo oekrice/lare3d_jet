@@ -77,7 +77,15 @@ PROGRAM lare3d
 
   CALL output_routines(step)     ! diagnostics.f90
 
+  print*, time
   DO
+
+    if (time .ge. t_end*float(diag_num)/float(ndiags)) then   ! Save diagnostic data (more frequently than snapshots)
+      !CALL test1
+      print*, 'Diagnostic number', diag_num, 'at time', time
+      CALL output_diags(diag_num)
+    end if
+
     IF ((step >= nsteps .AND. nsteps >= 0) .OR. (time >= t_end)) EXIT
     step = step + 1
     IF (eos_number /= EOS_IDEAL) CALL neutral_fraction ! neutral.f90
@@ -94,3 +102,20 @@ PROGRAM lare3d
   CALL MPI_FINALIZE(errcode)
 
 END PROGRAM lare3d
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
