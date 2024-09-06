@@ -77,7 +77,6 @@ PROGRAM lare3d
 
   CALL output_routines(step)     ! diagnostics.f90
 
-  print*, time
   DO
 
     if (time .ge. t_end*float(diag_num)/float(ndiags)) then   ! Save diagnostic data (more frequently than snapshots)

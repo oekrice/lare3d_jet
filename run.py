@@ -17,6 +17,7 @@ import sys
 from numpy import random
 import time
 from scipy.io import netcdf_file
+from init_bfield import compute_initial_condition
 
 #os.system('killall mf2d')
 
@@ -28,9 +29,9 @@ if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
 else:
     hamilton_flag = 0
 
-nx = 64
-ny = 64
-nz = 64
+nx = 96
+ny = 96
+nz = 96
 
 x0 = -0.5; x1 = 0.5
 y0 = -0.5; y1 = 0.5
@@ -67,6 +68,37 @@ variables[14] = nx
 variables[15] = nz
 
 variables[16] = hamilton_flag
+
+
+if True:
+    class Grid():
+        def __init__(self):
+            self.x0 = x0; self.x1 = x1
+            self.y0 = y0; self.y1 = y1
+            self.z0 = z0; self.z1 = z1
+            self.nx = nx ; self.ny = ny; self.nz = nz
+            self.dx = (self.x1 - self.x0)/nx
+            self.dy = (self.y1 - self.y0)/ny
+            self.dz = (self.z1 - self.z0)/nz
+            self.xs = np.linspace(self.x0,self.x1,self.nx+1)
+            self.ys = np.linspace(self.y0,self.y1,self.ny+1)
+            self.zs = np.linspace(self.z0,self.z1,self.nz+1)
+
+    def lbound_pariat(x,y):
+        #Outputs lower boundary radial magnetic field as a function of position x
+        sf = x1/12.0
+        lbound_fn = np.zeros((len(x),len(y)))
+        dipole_mag = 25.0; zstar = z1*1.5/24.0
+        for i, xi in enumerate(x):
+            for j,yj in enumerate(y):
+                lbound_fn[i,j] = sf**3*dipole_mag*(2*(zstar)**2 - ((xi)**2 + (yj)**2))/(((xi)**2 + (yj)**2 + (zstar)**2)**2.5)
+        print('Max lbound', np.max(lbound_fn))
+        print('Lbound flux', np.sum(np.abs(lbound_fn)))
+        return lbound_fn
+
+    #Make initial jet condition
+    grid = Grid()
+    compute_initial_condition(grid, lbound_pariat,run, background_strength = 1.0, boundary_error_limit = 1e-4, init_filename = './inits/init%03d.nc' % run)
 
 
 os.system('make')
