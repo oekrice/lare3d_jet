@@ -254,6 +254,12 @@ CONTAINS
 
   SUBROUTINE velocity_bcs
 
+    real(num):: br, bl, kb    !Parameters for the boundary motions (taken from Pariat)
+    real(num), dimension(:,:):: bzdy(0:nx+1,0:ny), bzdx(0:nx,0:ny+1)
+    real(num), dimension(:,:):: bzdy0(0:nx,0:ny), bzdx0(0:nx,0:ny)
+    real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
+    real(num), dimension(:,:):: vx_surf(0:nx,0:ny), vy_surf(0:nx,0:ny)
+
     CALL velocity_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
@@ -292,6 +298,31 @@ CONTAINS
       vz(:,:,nz:nz+2) = 0.0_num
     END IF
 
+    if (.false.) then
+      br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
+
+      bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
+      bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+
+      bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
+      bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
+
+      fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+      fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
+
+
+      fact0(0,:) = 0.0_num; fact0(nx,:) = 0.0_num
+      fact0(:,0) = 0.0_num; fact0(:,ny) = 0.0_num
+
+
+      vx_surf(0:nx, 0:ny) = -fact0*bzdy0
+      vy_surf(0:nx, 0:ny) = fact0*bzdx0
+
+      vx(0:nx,0:ny,0) = vx(0:nx,0:ny,0) + shearing_fact*vx_surf
+      vy(0:nx,0:ny,0) = vy(0:nx,0:ny,0) + shearing_fact*vy_surf
+
+    end if
+
   END SUBROUTINE velocity_bcs
 
 
@@ -301,6 +332,12 @@ CONTAINS
   !****************************************************************************
 
   SUBROUTINE remap_v_bcs
+
+    real(num):: br, bl, kb    !Parameters for the boundary motions (taken from Pariat)
+    real(num), dimension(:,:):: bzdy(0:nx+1,0:ny), bzdx(0:nx,0:ny+1)
+    real(num), dimension(:,:):: bzdy0(0:nx,0:ny), bzdx0(0:nx,0:ny)
+    real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
+    real(num), dimension(:,:):: vx_surf(0:nx,0:ny), vy_surf(0:nx,0:ny)
 
     CALL remap_v_mpi
 
@@ -339,6 +376,28 @@ CONTAINS
       vy1(:,:,nz:nz+2) = 0.0_num
       vz1(:,:,nz:nz+2) = 0.0_num
     END IF
+
+    if (.false.) then
+        br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
+
+        bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
+        bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+
+        bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
+        bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
+
+        fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+        fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
+
+
+        fact0(0,:) = 0.0_num; fact0(nx,:) = 0.0_num
+        fact0(:,0) = 0.0_num; fact0(:,ny) = 0.0_num
+        vx_surf(0:nx, 0:ny) = -fact0*bzdy0
+        vy_surf(0:nx, 0:ny) = fact0*bzdx0
+
+        vx1(0:nx,0:ny,1) = vx1(0:nx,0:ny,1) + shearing_fact*vx_surf
+        vy1(0:nx,0:ny,1) = vy1(0:nx,0:ny,1) + shearing_fact*vy_surf
+     end if
 
   END SUBROUTINE remap_v_bcs
 

@@ -2,8 +2,6 @@
 # Specify debugging flags with "make MODE=debug"
 # Alternatively, these options can be specified as environment variables
 # eg. "export COMPILER=gfortran" can be added to $HOME/.bashrc
-
-
 D = -D
 FFLAGS = -O3
 

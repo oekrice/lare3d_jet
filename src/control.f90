@@ -139,6 +139,7 @@ CONTAINS
 
     !Magnetic field factor
     bfield_fact = vars(6)
+    shearing_fact = vars(7)
     ! Turn on or off the resistive parts of the MHD equations
     resistive_mhd = .FALSE.
 

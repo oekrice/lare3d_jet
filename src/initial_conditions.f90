@@ -57,22 +57,22 @@ CONTAINS
     bz(-1:nx+2, -1:ny+2, -2:nz+2) = 0.0_num
 
     rho(-1:nx+2, -1:ny+2, -1:nz+2) = 1.0_num
-    energy(-1:nx+2, -1:ny+2, -1:nz+2) = 1.0_num
+    !energy(-1:nx+2, -1:ny+2, -1:nz+2) = 0.01_num
 
     grav(-1:nz+2) = 0.0_num
 
     ! If defining the initial conditions using temperature then use
     ALLOCATE(temperature(-1:nx+2, -1:ny+2, -1:nz+2))
-    temperature(-1:nx+2, -1:ny+2, -1:nz+2) = 0.5_num
+    temperature(-1:nx+2, -1:ny+2, -1:nz+2) = 1.0_num
 
     ! If neutrals included xi_n is a function of temperature so iteration required
     ! Set the neutral fraction if needed
     DO iz = -1,nz+2
       DO iy = -1,ny+2
         DO ix = -1,nx+2
-          IF (eos_number /= EOS_IDEAL) THEN         
+          IF (eos_number /= EOS_IDEAL) THEN
             xi_v = get_neutral(temperature(ix,iy,iz), rho(ix,iy,iz))
-          ELSE  
+          ELSE
             IF (neutral_gas) THEN
               xi_v = 1.0_num
             ELSE
@@ -331,6 +331,8 @@ CONTAINS
     bx = bx*bfield_fact
     by = by*bfield_fact
     bz = bz*bfield_fact
+
+    CALL bfield_bcs
 
 END SUBROUTINE import_bfield
 

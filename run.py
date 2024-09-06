@@ -43,14 +43,14 @@ nz = 96
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
-z0 = -1.0/ny; z1 = 24.
+z0 = -1.0/ny; z1 = 24
 
-shearfact = 1.0
-bfact = 3.7e-5
+shearfact = 0.0
+bfact = 1e-6
 
-nplots = 10
+nplots = 100
 ndiags = 100
-tmax = 1.0
+tmax = 10.0
 
 eta = 1e-6
 
