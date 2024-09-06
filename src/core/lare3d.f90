@@ -77,8 +77,6 @@ PROGRAM lare3d
 
   IF (rank == 0) PRINT*, 'Initial conditions setup OK. Running Code'
 
-  CALL output_routines(step)     ! diagnostics.f90
-
   DO
 
     if (time .ge. t_end*float(diag_num)/float(ndiags)) then   ! Save diagnostic data (more frequently than snapshots)
@@ -101,7 +99,6 @@ PROGRAM lare3d
     CALL eulerian_remap(step)        ! remap.f90
     IF (rke) CALL energy_correction  ! diagnostics.f90
     CALL eta_calc                    ! lagran.f90
-    CALL output_routines(step)       ! diagnostics.f90
   END DO
 
   IF (rank == 0) PRINT*, 'Code Terminated normally'
