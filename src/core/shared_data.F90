@@ -79,8 +79,6 @@ END MODULE constants
 MODULE shared_data
 
   USE constants
-  USE sdf_job_info
-  USE sdf
   USE mpi
 
   IMPLICIT NONE
@@ -90,7 +88,6 @@ MODULE shared_data
   INTEGER, PARAMETER :: sdf_num = c_datatype_real4
 #else
   INTEGER, PARAMETER :: mpireal = MPI_DOUBLE_PRECISION
-  INTEGER, PARAMETER :: sdf_num = c_datatype_real8
 #endif
 
   INTEGER :: nx_global, ny_global, nz_global
@@ -213,18 +210,7 @@ MODULE shared_data
   CHARACTER(LEN=1), PARAMETER :: filesystem = ''
 #endif
   CHARACTER(LEN=6) :: file_prefix = ''
-  TYPE(jobid_type) :: jobid
   INTEGER :: run_date = 0
-
-  ! History file header
-  CHARACTER(LEN=3) :: c_history_magic = 'HIS'
-  INTEGER, PARAMETER :: c_history_version = 1
-  INTEGER, PARAMETER :: c_history_revision = 0
-  INTEGER, PARAMETER :: c_endianness = 16911887
-
-  INTEGER, PARAMETER :: c_stagger_bx = c_stagger_face_x
-  INTEGER, PARAMETER :: c_stagger_by = c_stagger_face_y
-  INTEGER, PARAMETER :: c_stagger_bz = c_stagger_face_z
 
   ! Number of variables to dump
   LOGICAL, DIMENSION(20) :: dump_mask

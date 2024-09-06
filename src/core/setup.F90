@@ -15,7 +15,6 @@
 MODULE setup
 
   USE shared_data
-  USE sdf_job_info
   USE version_data
   USE welcome
   USE diagnostics
@@ -25,7 +24,6 @@ MODULE setup
   PRIVATE
   PUBLIC :: before_control, after_control
   PUBLIC :: grid
-  PUBLIC :: open_files, close_files, restart_data
 
 CONTAINS
 
@@ -44,9 +42,6 @@ CONTAINS
 
     time = 0.0_num
     gamma = 5.0_num / 3.0_num
-
-    CALL get_job_id(jobid)
-    run_date = get_unix_time()
 
   END SUBROUTINE before_control
 
@@ -79,7 +74,6 @@ CONTAINS
 
     va_max2 = va_max**2
 
-    CALL get_job_id(jobid)
 
   END SUBROUTINE after_control
 
@@ -355,133 +349,7 @@ CONTAINS
   END SUBROUTINE stretch_z
 
 
-
-  !****************************************************************************
-  ! Open the output diagnostic files.
-  !****************************************************************************
-
-  SUBROUTINE open_files
-
-    CHARACTER(LEN=11+data_dir_max_length) :: file2
-    CHARACTER(LEN=7+data_dir_max_length) :: file3
-    CHARACTER(LEN=3) :: magic
-    REAL(num) :: time1
-    INTEGER :: ios, num_sz_in, en_nvars_in, p1, nrec, recsz
-    INTEGER :: version, revision, endianness, header_length, ierr
-    LOGICAL :: exists
-
-#ifdef NO_IO
-    RETURN
-#endif
-
-    IF (rank /= 0) RETURN
-
-    ! Setup lare3d.dat file
-
-    WRITE(file2, '(a, ''/lare3d.dat'')') TRIM(data_dir)
-
-    INQUIRE(FILE=file2, EXIST=exists)
-
-    IF (.NOT.exists .OR. .NOT.restart) THEN
-      OPEN(UNIT=stat_unit, STATUS='REPLACE', FILE=file2, &
-          FORM='FORMATTED', iostat=ios)
-    ELSE
-      OPEN(UNIT=stat_unit, STATUS='OLD', POSITION='APPEND', FILE=file2, &
-          FORM='FORMATTED', iostat=ios)
-    END IF
-
-    IF (ios /= 0) THEN
-      PRINT*, 'Unable to open file lare3d.dat for writing. This is ', &
-              'most commonly caused by the output directory not existing'
-      PRINT*
-      PRINT*
-      CALL MPI_ABORT(comm, ierr, errcode)
-    END IF
-
-    ! Setup en.dat file
-
-    WRITE(file3, '(a, ''/en.dat'')') TRIM(data_dir)
-
-    INQUIRE(FILE=file3, EXIST=exists)
-
-    IF (.NOT.exists .OR. .NOT.restart) THEN
-      OPEN(UNIT=en_unit, STATUS='REPLACE', FILE=file3, &
-          FORM='UNFORMATTED', ACCESS='STREAM', iostat=ios)
-    ELSE
-      OPEN(UNIT=en_unit, STATUS='OLD', FILE=file3, &
-          FORM='UNFORMATTED', ACCESS='STREAM', iostat=ios)
-
-      READ(en_unit) magic, version, revision
-      READ(en_unit) endianness
-      READ(en_unit) header_length
-      READ(en_unit) num_sz_in, en_nvars_in
-
-      IF (magic /= c_history_magic .OR. endianness /= c_endianness &
-          .OR. num_sz_in /= num_sz .OR. en_nvars_in /= en_nvars) THEN
-        PRINT*, 'WARNING: incompatible en.dat file found. ', &
-                'File will be overwritten.'
-        REWIND(en_unit)
-      ELSE
-        p1 = header_length + 1
-
-        recsz = num_sz * en_nvars
-        nrec = 0
-
-        READ(en_unit,POS=p1) time1
-
-        ! Search forwards until we reach the first en.dat time after
-        ! the current simulation time
-        DO WHILE (time-time1 > 1.0e-20_num)
-          nrec = nrec + 1
-          READ(en_unit,POS=p1+nrec*recsz) time1
-        END DO
-
-        ! Search backwards until we reach the first en.dat time before
-        ! the current simulation time
-        DO WHILE (time1-time > 1.0e-20_num)
-          nrec = nrec - 1
-          READ(en_unit,POS=p1+nrec*recsz) time1
-        END DO
-
-        ! Set file position
-        READ(en_unit,POS=p1+nrec*recsz-num_sz) time1
-      END IF
-    END IF
-
-    IF (ios /= 0) THEN
-      PRINT*, 'Unable to open file en.dat for writing. This is ', &
-              'most commonly caused by the output directory not existing'
-      PRINT*
-      PRINT*
-      CALL MPI_ABORT(comm, ierr, errcode)
-    END IF
-
-    CALL setup_files
-
-  END SUBROUTINE open_files
-
-
-
-  !****************************************************************************
-  ! Close the output diagnostic files
-  !****************************************************************************
-
-  SUBROUTINE close_files
-
-#ifdef NO_IO
-    RETURN
-#endif
-
-    IF (rank == 0) THEN
-      CLOSE(UNIT=stat_unit)
-      CLOSE(UNIT=en_unit)
-    END IF
-
-  END SUBROUTINE close_files
-
-
-
-  !****************************************************************************
+ !****************************************************************************
   ! Function to compare two strings.
   !****************************************************************************
 
@@ -508,185 +376,6 @@ CONTAINS
     str_cmp = str_trim(1:l) == str_test
 
   END FUNCTION str_cmp
-
-
-
-  !****************************************************************************
-  ! Restart the code from a previous output dump.
-  !****************************************************************************
-
-  SUBROUTINE restart_data
-
-    CHARACTER(LEN=c_id_length) :: code_name, block_id, mesh_id, str1
-    CHARACTER(LEN=c_max_string_length) :: name
-    CHARACTER(LEN=22) :: filename_fmt
-    CHARACTER(LEN=5+n_zeros+c_id_length) :: filename
-    CHARACTER(LEN=6+data_dir_max_length+n_zeros+c_id_length) :: full_filename
-    INTEGER :: blocktype, datatype, code_io_version, string_len
-    INTEGER :: ierr, iblock, nblocks, ndims, geometry
-    INTEGER, DIMENSION(4) :: dims
-    INTEGER, DIMENSION(c_ndims) :: global_dims
-    REAL(num), DIMENSION(2*c_ndims) :: extents
-    LOGICAL :: restart_flag
-    TYPE(sdf_file_handle) :: sdf_handle
-
-    step = -1
-    file_number = restart_snapshot
-
-    ! Set the filename. Allows a maximum of 10^999 output dumps.
-    WRITE(filename_fmt, '(''(a, i'', i3.3, ''.'', i3.3, '', ".sdf")'')') &
-        n_zeros, n_zeros
-    WRITE(filename, filename_fmt) TRIM(file_prefix), file_number
-    full_filename = TRIM(filesystem) // TRIM(data_dir) // '/' // TRIM(filename)
-
-    IF (rank == 0) THEN
-      PRINT*,'Attempting to restart from file: ',TRIM(full_filename)
-    END IF
-
-    CALL sdf_open(sdf_handle, full_filename, comm, c_sdf_read)
-
-    CALL sdf_read_header(sdf_handle, step, time, code_name, code_io_version, &
-        string_len, restart_flag)
-
-    IF (.NOT. restart_flag) THEN
-      IF (rank == 0) THEN
-        PRINT*, '*** ERROR ***'
-        PRINT*, 'SDF file is not a restart dump. Unable to continue.'
-      END IF
-      CALL MPI_ABORT(MPI_COMM_WORLD, ierr, errcode)
-      STOP
-    END IF
-
-    IF (.NOT.str_cmp(code_name, TRIM(c_code_name))) THEN
-      IF (rank == 0) THEN
-        PRINT*, '*** ERROR ***'
-        PRINT*, 'SDF restart file was not generated by ', &
-            TRIM(c_code_name) // '.', 'Unable to ', 'continue.'
-      END IF
-      CALL MPI_ABORT(MPI_COMM_WORLD, ierr, errcode)
-      STOP
-    END IF
-
-    IF (string_len > c_max_string_length) THEN
-      IF (rank == 0) THEN
-        PRINT*, '*** ERROR ***'
-        PRINT*, 'SDF file string lengths are too large to read.'
-        PRINT*, 'Please increase the size of "c_max_string_length" in ', &
-            'shared_data.F90 to ','be at least ', string_len
-      END IF
-      CALL MPI_ABORT(MPI_COMM_WORLD, ierr, errcode)
-      STOP
-    END IF
-
-    nblocks = sdf_read_nblocks(sdf_handle)
-    jobid = sdf_read_jobid(sdf_handle)
-
-    IF (rank == 0) THEN
-      PRINT*, 'Loading snapshot for time', time
-      CALL create_ascii_header
-    END IF
-
-    IF (rank == 0) PRINT*, 'Input file contains', nblocks, 'blocks'
-
-    CALL sdf_read_blocklist(sdf_handle)
-
-    CALL sdf_seek_start(sdf_handle)
-
-    global_dims = (/ nx_global+1, ny_global+1, nz_global+1 /)
-
-    DO iblock = 1, nblocks
-      CALL sdf_read_next_block_header(sdf_handle, block_id, name, blocktype, &
-          ndims, datatype)
-
-      SELECT CASE(blocktype)
-      CASE(c_blocktype_constant)
-        IF (str_cmp(block_id, 'dt')) THEN
-          CALL sdf_read_srl(sdf_handle, dt_from_restart)
-        ELSE IF (str_cmp(block_id, 'time_prev')) THEN
-          CALL sdf_read_srl(sdf_handle, time_prev)
-        ELSE IF (str_cmp(block_id, 'visc_heating')) THEN
-          CALL sdf_read_srl(sdf_handle, total_visc_heating)
-          IF (rank /= 0) total_visc_heating = 0
-        END IF
-      CASE(c_blocktype_plain_mesh)
-        IF (ndims /= c_ndims .OR. datatype /= sdf_num &
-            .OR. .NOT.str_cmp(block_id, 'grid')) CYCLE
-
-        CALL sdf_read_plain_mesh_info(sdf_handle, geometry, dims, extents)
-
-        IF (geometry /= c_geometry_cartesian &
-            .OR. ALL(dims(1:c_ndims) /= global_dims(1:c_ndims))) CYCLE
-
-        ! Should read the grid from file at this point?
-        x_min = extents(1)
-        x_max = extents(c_ndims+1)
-        y_min = extents(2)
-        y_max = extents(c_ndims+2)
-        z_min = extents(3)
-        z_max = extents(c_ndims+3)
-
-      CASE(c_blocktype_plain_variable)
-        IF (ndims /= c_ndims .OR. datatype /= sdf_num) CYCLE
-
-        CALL sdf_read_plain_variable_info(sdf_handle, dims, str1, mesh_id)
-
-        IF (.NOT.str_cmp(mesh_id, 'grid')) CYCLE
-
-        IF (str_cmp(block_id, 'Rho')) THEN
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, rho, &
-              cell_distribution, cell_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Energy')) THEN
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, energy, &
-              cell_distribution, cell_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Vx')) THEN
-          dims = dims - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, vx, &
-              node_distribution, node_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Vy')) THEN
-          dims = dims - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, vy, &
-              node_distribution, node_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Vz')) THEN
-          dims = dims - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, vz, &
-              node_distribution, node_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Bx')) THEN
-          dims(1) = dims(1) - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, bx, &
-              bx_distribution, bx_subarray)
-
-        ELSE IF (str_cmp(block_id, 'By')) THEN
-          IF (c_ndims >= 2) dims(2) = dims(2) - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, by, &
-              by_distribution, by_subarray)
-
-        ELSE IF (str_cmp(block_id, 'Bz')) THEN
-          IF (c_ndims >= 3) dims(3) = dims(3) - 1
-          CALL check_dims(dims)
-          CALL sdf_read_plain_variable(sdf_handle, bz, &
-              bz_distribution, bz_subarray)
-
-        END IF
-
-      END SELECT
-    END DO
-
-    CALL sdf_close(sdf_handle)
-
-  END SUBROUTINE restart_data
-
 
 
   SUBROUTINE check_dims(dims)

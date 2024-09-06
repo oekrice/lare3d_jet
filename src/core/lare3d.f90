@@ -54,17 +54,11 @@ PROGRAM lare3d
 
   if (rank == 0) print*, 'Grid set up. Attempting initial conditions...'
 
-  IF (IAND(initial, IC_RESTART) /= 0) THEN
-    CALL set_initial_conditions  ! required to reset gravity
-    CALL restart_data            ! setup.f90
-    restart = .TRUE.
-  END IF
 
   IF (IAND(initial, IC_NEW) /= 0) THEN
     CALL set_initial_conditions  ! initial_conditions.f90
   END IF
 
-  CALL open_files                ! setup.f90
   CALL set_boundary_conditions   ! boundary.f90
   CALL boundary_conditions       ! boundary.f90
   CALL eta_calc                  ! lagran.f90
@@ -103,7 +97,6 @@ PROGRAM lare3d
 
   IF (rank == 0) PRINT*, 'Code Terminated normally'
   CALL mpi_close                     ! mpi_routines.f90
-  CALL close_files                   ! setup.f90
   CALL MPI_FINALIZE(errcode)
 
 END PROGRAM lare3d

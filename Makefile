@@ -11,7 +11,6 @@ FFLAGS = -O3
     FFLAGS = -O0 -g -Wall -Wextra -pedantic -fbounds-check \
              -ffpe-trap=invalid,zero,overflow -Wno-unused-parameter \
 						 -Wrealloc-lhs-all
-    #FFLAGS += -ffpe-trap=underflow,denormal
 
     GNUVER := $(shell gfortran -dumpversion | head -1 \
         | sed 's/[^0-9\.]*\([0-9\.]\+\).*/\1/')
@@ -48,42 +47,13 @@ else
 	NETCDFLIB = -L/usr/lib64/libnetcdff.so.7 -lnetcdff
 endif
 
-FFLAGS += -I$(SDF)/include
 FFLAGS += $(MODULEFLAG)
-LDFLAGS = $(FFLAGS) -L$(SDF)/lib -lsdf
+LDFLAGS = $(FFLAGS)
 # Set some of the build parameters
 TARGET = lare3d
 
 # Set pre-processor defines
 DEFINES := $(DEFINE)
-
-# The following are a list of pre-processor defines which can be added to
-# the above line modifying the code behaviour at compile time.
-
-# Uncomment to use Cauchy solution for predictor step B-field, othwerwise advective prediction
-#DEFINES += $(D)CAUCHY
-
-# Uncomment the following line to limters on the shock viscosity
-#DEFINES += $(D)SHOCKLIMITER
-
-# Uncomment the following line to allow shock viscosity only in compressed cells
-#DEFINES += $(D)SHOCKCOMPRESSION
-
-# Uncomment the following line to run in single precision
-#DEFINES += $(D)SINGLE
-
-# Uncomment the following line to use first order scheme for resistive update
-#DEFINES += $(D)FOURTHORDER
-
-# Uncomment to add the 'nfs' file prefix required by some filesystems
-#DEFINES += $(D)FILEPREFIX
-
-# Don't generate any output at all. Useful for benchmarking.
-#DEFINES += $(D)NO_IO
-
-# Uncomment to enable the MPI error handler which is useful for debugging
-#DEFINES += $(D)MPI_DEBUG
-
 
 # --------------------------------------------------
 # Shouldn't need to touch below here
@@ -91,8 +61,6 @@ DEFINES := $(DEFINE)
 
 all: main
 
-SDF := SDF/FORTRAN
-SDFMOD = $(SDF)/include/sdf.mod
 SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
@@ -135,9 +103,6 @@ $(FULLTARGET): $(OBJFILES)
 	@mkdir -p $(BINDIR)
 	$(FC) -o $@ $(addprefix $(OBJDIR)/,$(OBJFILES)) $(LDFLAGS) $(NETCDFLIB)
 
-$(SDFMOD):
-	$(MAKE) -C $(SDF)
-
 clean:
 	@rm -rf $(BINDIR) $(OBJDIR)
 
@@ -153,12 +118,6 @@ datatidy:
 tarball:
 	@sh $(SRCDIR)/make_tarball.sh
 
-visit:
-	@cd $(SDF)/../VisIt; ./build
-
-visitclean:
-	@cd $(SDF)/../VisIt; make clean; ./build -c; \
-	  rm -rf .depend *.d *Info.C *Info.h CMake* cmake* Makefile
 
 $(OBJFILES): | $(OBJDIR)
 

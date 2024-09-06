@@ -102,8 +102,6 @@ if False:
         print('Max lbound', np.max(lbound_fn))
         print('Lbound flux', np.sum(np.abs(lbound_fn)))
 
-        plt.pcolormesh(lbound_fn)
-        plt.show()
         return lbound_fn
 
     #Make initial jet condition

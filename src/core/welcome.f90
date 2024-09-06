@@ -140,11 +140,6 @@ CONTAINS
 
     version_string = c_commit_id(1:strmax)
 
-    CALL integer_as_string(jobid%start_seconds, job1)
-    CALL integer_as_string(jobid%start_milliseconds, job2)
-    ascii_header = c_code_name // ' v' // TRIM(version_string) // '   ' &
-        // c_commit_id // ' ' // TRIM(job1) // '.' // TRIM(ADJUSTL(job2))
-
   END SUBROUTINE create_ascii_header
 
 

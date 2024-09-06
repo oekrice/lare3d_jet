@@ -107,15 +107,15 @@ for plot_num in range(0,nsnaps,1):
 
         im = axs[0,0].pcolormesh(xc,zs,bx[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[0,0])
-        axs[1,0].set_title('Bx')
+        axs[0,0].set_title('Bx')
         
         im = axs[0,1].pcolormesh(xs,zs,by[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[0,1])
-        axs[1,0].set_title('By')
+        axs[0,1].set_title('By')
         
         im = axs[0,2].pcolormesh(xs,zc,bz[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[0,2])
-        axs[1,0].set_title('Bz')
+        axs[0,2].set_title('Bz')
         
         im = axs[1,0].pcolormesh(xs,zs,en[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[1,0])

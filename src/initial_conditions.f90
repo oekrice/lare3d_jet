@@ -57,7 +57,7 @@ CONTAINS
     bz(-1:nx+2, -1:ny+2, -2:nz+2) = 0.0_num
 
     rho(-1:nx+2, -1:ny+2, -1:nz+2) = 1.0_num
-    energy(-1:nx+2, -1:ny+2, -1:nz+2) = 0.1_num
+    energy(-1:nx+2, -1:ny+2, -1:nz+2) = 1.0_num
 
     grav(-1:nz+2) = 0.0_num
 
