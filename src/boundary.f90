@@ -65,54 +65,56 @@ CONTAINS
     CALL bfield_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
+      bz(0,0:ny+1,0:nz) = bz(1,0:ny+1,0:nz) - dxb(0)*(bx(0,0:ny+1,1:nz+1) - bx(0, 0:ny+1,0:nz))/dzb(0)
+      by(0,0:ny,0:nz+1) = by(1, 0:ny,0:nz+1) - dxb(0)*(bx(0,1:ny+1,0:nz+1) - bx(0,0:ny,0:nz+1))/dyb(0)
       bx(-1,:,:) = 0.0_num
       bx(-2,:,:) = 0.0_num
-      by( 0,:,:) = by(1,:,:)
       by(-1,:,:) = by(2,:,:)
-      bz( 0,:,:) = bz(1,:,:)
       bz(-1,:,:) = bz(2,:,:)
     END IF
 
     IF (proc_x_max == MPI_PROC_NULL .AND. xbc_max == BC_USER) THEN
+      bz(nx+1,0:ny+1,0:nz) = bz(nx,0:ny+1,0:nz) + dxb(0)*(bx(nx,0:ny+1,1:nz+1) - bx(nx, 0:ny+1,0:nz))/dzb(0)
+      by(nx+1,0:ny,0:nz+1) = by(nx, 0:ny,0:nz+1) + dxb(0)*(bx(nx,1:ny+1,0:nz+1) - bx(nx,0:ny,0:nz+1))/dyb(0)
       bx(nx+1,:,:) = 0.0_num
       bx(nx+2,:,:) = 0.0_num
-      by(nx+1,:,:) = by(nx  ,:,:)
       by(nx+2,:,:) = by(nx-1,:,:)
-      bz(nx+1,:,:) = bz(nx  ,:,:)
       bz(nx+2,:,:) = bz(nx-1,:,:)
     END IF
 
     IF (proc_y_min == MPI_PROC_NULL .AND. ybc_min == BC_USER) THEN
-      bx(:, 0,:) = bx(:,1,:)
+      bz(0:nx+1,0,0:nz) = bz(0:nx+1, 1,0:nz) - dyb(0)*(by(0:nx+1,0,1:nz+1) - by(0:nx+1,0,0:nz))/dzb(0)
+      bx(0:nx,0,0:nz+1) = bx(0:nx,1,0:nz+1) - dyb(0)*(by(1:nx+1,0,0:nz+1) - by(0:nx, 0,0:nz+1))/dxb(0)
       bx(:,-1,:) = bx(:,2,:)
       by(:,-1,:) = 0.0_num
       by(:,-2,:) = 0.0_num
-      bz(:, 0,:) = bz(:,1,:)
       bz(:,-1,:) = bz(:,2,:)
     END IF
 
     IF (proc_y_max == MPI_PROC_NULL .AND. ybc_max == BC_USER) THEN
-      bx(:,ny+1,:) = bx(:,ny  ,:)
+
+      bz(0:nx+1,ny+1,0:nz) = bz(0:nx+1, ny,0:nz) + dyb(0)*(by(0:nx+1,ny,1:nz+1) - by(0:nx+1,ny,0:nz))/dzb(0)
+      bx(0:nx,ny+1,0:nz+1) = bx(0:nx,ny,0:nz+1) + dyb(0)*(by(1:nx+1,ny,0:nz+1) - by(0:nx, ny,0:nz+1))/dxb(0)
+
       bx(:,ny+2,:) = bx(:,ny-1,:)
       by(:,ny+1,:) = 0.0_num
       by(:,ny+2,:) = 0.0_num
-      bz(:,ny+1,:) = bz(:,ny  ,:)
       bz(:,ny+2,:) = bz(:,ny-1,:)
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      bx(:,:, 0) = bx(:,:,1)
+      by(0:nx+1,0:ny,0) = by(0:nx+1,0:ny,1) - dzb(0)*(bz(0:nx+1,1:ny+1,0) - bz(0:nx+1, 0:ny,0))/dyb(0)
+      bx(0:nx, 0:ny+1,0) = bx(0:nx,0:ny+1,1) - dzb(0)*(bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0))/dxb(0)
       bx(:,:,-1) = bx(:,:,2)
-      by(:,:, 0) = by(:,:,1)
       by(:,:,-1) = by(:,:,2)
       bz(:,:,-1) = bz(:,:,1)
       bz(:,:,-2) = bz(:,:,2)
     END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
-      bx(:,:,nz+1) = bx(:,:,nz  )
+      by(0:nx+1,0:ny,nz+1) = by(0:nx+1,0:ny,nz) + dzb(0)*(bz(0:nx+1,1:ny+1,nz) - bz(0:nx+1, 0:ny,nz))/dyb(0)
+      bx(0:nx, 0:ny+1,nz+1) = bx(0:nx,0:ny+1,nz) + dzb(0)*(bz(1:nx+1,0:ny+1,nz) - bz(0:nx,0:ny+1,nz))/dxb(0)
       bx(:,:,nz+2) = bx(:,:,nz-1)
-      by(:,:,nz+1) = by(:,:,nz  )
       by(:,:,nz+2) = by(:,:,nz-1)
       bz(:,:,nz+1) = bz(:,:,nz-1)
       bz(:,:,nz+2) = bz(:,:,nz-2)
