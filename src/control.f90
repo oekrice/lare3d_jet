@@ -39,11 +39,11 @@ CONTAINS
     ! in SI units
 
     ! Gamma is the ratio of specific heat capacities
-    gamma = 1.4_num
+    gamma = 5.0_num/3.0_num
 
     ! Average mass of an ion in proton masses
     ! The code assumes a single ion species with this mass
-    mf = 1.2_num
+    mf = 1.0_num
 
     ! The equations describing the normalisation in LARE have three free
     ! parameters which must be specified by the end user. These must be the
@@ -51,13 +51,13 @@ CONTAINS
     ! non-ideal MHD terms.
 
     ! Magnetic field normalisation in Tesla
-    B_norm = 0.1_num
+    B_norm = 1.0_num
 
     ! Length normalisation in m
-    L_norm = 1.e6_num
+    L_norm = 1.0_num
 
     ! Density normalisation in kg / m^3
-    rho_norm = 1.67e-4_num
+    rho_norm = 1.0_num
 
   END SUBROUTINE user_normalisation
 
@@ -89,6 +89,9 @@ CONTAINS
     READ(1, *) vars
     CLOSE(1)
 
+    data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
+    correction_factor = 0.0
+
     run_id = vars(1)
     ! Set the number of gridpoints in x and y directions
     nx_global = int(vars(14))
@@ -102,12 +105,16 @@ CONTAINS
     ! The maximum runtime of the code
     t_end = vars(3)
 
+    !Initial variables
+    energy_init = 1.5d-2
+    density_init = 1.0_num
+
     ! Shock viscosities as detailed in manual - they are dimensionless
     visc1 = 0.1_num
     visc2 = 0.5_num
     ! \nabla^2 v damping 
     ! visc3 is an array set initial conditions
-    use_viscous_damping = .TRUE.
+    use_viscous_damping = .FALSE.
 
     ! Set these constants to manually override the domain decomposition.
     ! If either constant is set to zero then the code will try to automatically
@@ -131,6 +138,7 @@ CONTAINS
     ! The length of the domain in the z direction
     z_min = vars(12)
     z_max = vars(13)
+
     ! Should the z grid be stretched or uniform
     z_stretch = .FALSE.
     ! Ndiags and nplots
@@ -154,9 +162,9 @@ CONTAINS
 
     ! Turn on or off the Braginskii thermal conduction term in
     ! the MHD equations
-    conduction = .TRUE.
+    conduction = .FALSE.
     ! Turn on heat flux limiter
-    heat_flux_limiter = .TRUE.
+    heat_flux_limiter = .FALSE.
     ! Limiter used if on
     flux_limiter = 0.1_num
 
@@ -201,7 +209,7 @@ CONTAINS
     zbc_max = BC_USER
 
     !If any user boundaries are driven using the spectra routines in boundary.f90 then set this flag
-    driven_boundary = .TRUE.
+    driven_boundary = .FALSE.
 
     ! Control Boris scheme for limiting the Alfven speed
     ! Logical boris to turn on/off
@@ -229,7 +237,7 @@ CONTAINS
     !Tweak this to get a "good" cooling function that doesn't just remove all
     !heating effects
     ! Works for viscosity and first order resistive effects
-    cooling_term = .TRUE.
+    cooling_term = .FALSE.
     alpha_av = 0.05_num
 
     !Counters for the outputs

@@ -1161,6 +1161,8 @@ CONTAINS
       END IF
     END IF
 
+    !dt = dt/2.0
+    !dtr = dtr/2.0
     time = time + dt
 
   END SUBROUTINE set_dt

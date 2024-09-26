@@ -22,6 +22,9 @@ import matplotlib.pyplot as plt
 
 #os.system('killall mf2d')
 
+data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
+#data_directory = './Data'
+
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
 else:
@@ -37,20 +40,27 @@ if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
 else:
     hamilton_flag = 0
 
-nx = 96
-ny = 96
-nz = 96
+if os.path.isdir(data_directory):
+    for i in range(1000):
+        if os.path.isfile('%s%04d.nc' % (data_directory, i)):
+            os.remove('%s%04d.nc' % (data_directory, i))
+else:
+    os.mkdir(data_directory)
+
+nx = 64
+ny = 64
+nz = 64
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
 z0 = -1.0/ny; z1 = 24
 
-shearfact = 0.0
-bfact = 1e-6
+shearfact = 3.7e-5
+bfact = 1.0
 
-nplots = 100
-ndiags = 100
-tmax = 10.0
+nplots = 250
+ndiags = 1000
+tmax = 250.0
 
 eta = 1e-6
 
@@ -77,7 +87,7 @@ variables[15] = nz
 variables[16] = hamilton_flag
 
 
-if False:
+if True:
     class Grid():
         def __init__(self):
             self.x0 = x0; self.x1 = x1

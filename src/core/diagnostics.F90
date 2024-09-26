@@ -94,15 +94,29 @@ SUBROUTINE output_snap(snap_num)
     INTEGER:: xc_id, yc_id, zc_id
     INTEGER:: bx_id, by_id, bz_id
     INTEGER:: en_id, rho_id
+    INTEGER:: vx_id, vy_id, vz_id
 
-    if (snap_num < 10) then
-        write (output_filename, "(A7,A3,I1,A3)") "./Data/", "000", snap_num, ".nc"
-    else if (snap_num < 100) then
-        write (output_filename, "(A7,A2,I2,A3)") "./Data/", "00", snap_num, ".nc"
-    else if (snap_num < 1000) then
-        write (output_filename, "(A7,A1,I3,A3)")  "./Data/", "0", snap_num, ".nc"
-    else if (snap_num < 10000) then
-        write (output_filename, "(A7,I4,A3)")  "./Data/", snap_num, ".nc"
+    if (.false.) then
+      if (snap_num < 10) then
+          write (output_filename, "(A7,A3,I1,A3)") "./Data/", "000", snap_num, ".nc"
+      else if (snap_num < 100) then
+          write (output_filename, "(A7,A2,I2,A3)") "./Data/", "00", snap_num, ".nc"
+      else if (snap_num < 1000) then
+          write (output_filename, "(A7,A1,I3,A3)")  "./Data/", "0", snap_num, ".nc"
+      else if (snap_num < 10000) then
+          write (output_filename, "(A7,I4,A3)")  "./Data/", snap_num, ".nc"
+      end if
+    else
+        if (snap_num < 10) then
+          write (output_filename, "(A36,A3,I1,A3)") trim(data_directory), "000", snap_num, ".nc"
+      else if (snap_num < 100) then
+          write (output_filename, "(A36,A2,I2,A3)") trim(data_directory), "00", snap_num, ".nc"
+      else if (snap_num < 1000) then
+          write (output_filename, "(A36,A1,I3,A3)")  trim(data_directory), "0", snap_num, ".nc"
+      else if (snap_num < 10000) then
+          write (output_filename, "(A36,I4,A3)") trim(data_directory), snap_num, ".nc"
+      end if
+
     end if
 
     if (rank == 0) then
@@ -122,6 +136,11 @@ SUBROUTINE output_snap(snap_num)
 
     call try(nf90_def_var(ncid, 'en', nf90_double, (/xc_id ,yc_id, zc_id/), en_id))
     call try(nf90_def_var(ncid, 'rho', nf90_double, (/xc_id ,yc_id, zc_id/), rho_id))
+
+    call try(nf90_def_var(ncid, 'vx', nf90_double, (/xs_id ,ys_id, zs_id/), vx_id))
+    call try(nf90_def_var(ncid, 'vy', nf90_double, (/xs_id ,ys_id, zs_id/), vy_id))
+    call try(nf90_def_var(ncid, 'vz', nf90_double, (/xs_id ,ys_id, zs_id/), vz_id))
+
 
     call try(nf90_enddef(ncid))
     call try(nf90_close(ncid))
@@ -156,6 +175,18 @@ SUBROUTINE output_snap(snap_num)
             call try(nf90_inq_varid(ncid, 'rho', vid))
             call try(nf90_put_var(ncid, vid, rho(1:nx,1:ny,1:nz), &
             start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz/)))
+
+            call try(nf90_inq_varid(ncid, 'vx', vid))
+            call try(nf90_put_var(ncid, vid, vx(0:nx,0:ny,0:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx+1,ny+1,nz+1/)))
+
+            call try(nf90_inq_varid(ncid, 'vy', vid))
+            call try(nf90_put_var(ncid, vid, vy(0:nx,0:ny,0:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx+1,ny+1,nz+1/)))
+
+            call try(nf90_inq_varid(ncid, 'vz', vid))
+            call try(nf90_put_var(ncid, vid, vz(0:nx,0:ny,0:nz), &
+            start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx+1,ny+1,nz+1/)))
 
             call try(nf90_close(ncid))
 

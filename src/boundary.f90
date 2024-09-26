@@ -65,8 +65,8 @@ CONTAINS
     CALL bfield_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
-      bx(-1,:,:) = bx(1,:,:)
-      bx(-2,:,:) = bx(2,:,:)
+      bx(-1,:,:) = 0.0_num
+      bx(-2,:,:) = 0.0_num
       by( 0,:,:) = by(1,:,:)
       by(-1,:,:) = by(2,:,:)
       bz( 0,:,:) = bz(1,:,:)
@@ -74,8 +74,8 @@ CONTAINS
     END IF
 
     IF (proc_x_max == MPI_PROC_NULL .AND. xbc_max == BC_USER) THEN
-      bx(nx+1,:,:) = bx(nx-1,:,:)
-      bx(nx+2,:,:) = bx(nx-2,:,:)
+      bx(nx+1,:,:) = 0.0_num
+      bx(nx+2,:,:) = 0.0_num
       by(nx+1,:,:) = by(nx  ,:,:)
       by(nx+2,:,:) = by(nx-1,:,:)
       bz(nx+1,:,:) = bz(nx  ,:,:)
@@ -85,8 +85,8 @@ CONTAINS
     IF (proc_y_min == MPI_PROC_NULL .AND. ybc_min == BC_USER) THEN
       bx(:, 0,:) = bx(:,1,:)
       bx(:,-1,:) = bx(:,2,:)
-      by(:,-1,:) = by(:,1,:)
-      by(:,-2,:) = by(:,2,:)
+      by(:,-1,:) = 0.0_num
+      by(:,-2,:) = 0.0_num
       bz(:, 0,:) = bz(:,1,:)
       bz(:,-1,:) = bz(:,2,:)
     END IF
@@ -94,8 +94,8 @@ CONTAINS
     IF (proc_y_max == MPI_PROC_NULL .AND. ybc_max == BC_USER) THEN
       bx(:,ny+1,:) = bx(:,ny  ,:)
       bx(:,ny+2,:) = bx(:,ny-1,:)
-      by(:,ny+1,:) = by(:,ny-1,:)
-      by(:,ny+2,:) = by(:,ny-2,:)
+      by(:,ny+1,:) = 0.0_num
+      by(:,ny+2,:) = 0.0_num
       bz(:,ny+1,:) = bz(:,ny  ,:)
       bz(:,ny+2,:) = bz(:,ny-1,:)
     END IF
@@ -156,7 +156,7 @@ CONTAINS
     END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
-      energy(:,:,nz+1) = energy(:,:,nz  )
+      energy(:,:,nz+1) = energy(:,:,nz)
       energy(:,:,nz+2) = energy(:,:,nz-1)
     END IF
 
@@ -193,12 +193,13 @@ CONTAINS
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
+      rho(:,:, 1) = density_init
       rho(:,:, 0) = rho(:,:,1)
       rho(:,:,-1) = rho(:,:,2)
     END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
-      rho(:,:,nz+1) = rho(:,:,nz  )
+      rho(:,:,nz+1) = rho(:,:,nz)
       rho(:,:,nz+2) = rho(:,:,nz-1)
     END IF
 
@@ -259,31 +260,40 @@ CONTAINS
     real(num), dimension(:,:):: bzdy0(0:nx,0:ny), bzdx0(0:nx,0:ny)
     real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
     real(num), dimension(:,:):: vx_surf(0:nx,0:ny), vy_surf(0:nx,0:ny)
+    INTEGER:: i,j
 
     CALL velocity_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
       vx(-2:0,:,:) = 0.0_num
       vy(-2:0,:,:) = 0.0_num
-      vz(-2:0,:,:) = 0.0_num
+      vz(0,:,:) = vz(1,:,:)
+      vz(-1,:,:) = vz(0,:,:)
+      vz(-2,:,:) = vz(-1,:,:)
     END IF
 
     IF (proc_x_max == MPI_PROC_NULL .AND. xbc_max == BC_USER) THEN
       vx(nx:nx+2,:,:) = 0.0_num
       vy(nx:nx+2,:,:) = 0.0_num
-      vz(nx:nx+2,:,:) = 0.0_num
+      vz(nx,:,:) = vz(nx-1,:,:)
+      vz(nx+1,:,:) = vz(nx,:,:)
+      vz(nx+2,:,:) = vz(nx+2,:,:)
     END IF
 
     IF (proc_y_min == MPI_PROC_NULL .AND. ybc_min == BC_USER) THEN
       vx(:,-2:0,:) = 0.0_num
       vy(:,-2:0,:) = 0.0_num
-      vz(:,-2:0,:) = 0.0_num
+      vz(:,0,:) = vz(:,1,:)
+      vz(:,-1,:) = vz(:,0,:)
+      vz(:,-2,:) = vz(:,-1,:)
     END IF
 
     IF (proc_y_max == MPI_PROC_NULL .AND. ybc_max == BC_USER) THEN
       vx(:,ny:ny+2,:) = 0.0_num
       vy(:,ny:ny+2,:) = 0.0_num
-      vz(:,ny:ny+2,:) = 0.0_num
+      vz(:,ny,:) = vz(:,ny-1,:)
+      vz(:,ny+1,:) = vz(:,ny,:)
+      vz(:,ny+2,:) = vz(:,ny+1,:)
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
@@ -295,10 +305,18 @@ CONTAINS
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx(:,:,nz:nz+2) = 0.0_num
       vy(:,:,nz:nz+2) = 0.0_num
-      vz(:,:,nz:nz+2) = 0.0_num
+
+      do i = -2, nx+2
+          do j = -2, ny+2
+          vz(i, j, nz) = max(0.0,1.25*vz(i,j,nz-1))
+          end do
+      end do
+      vz(:,:,nz+1) = vz(:,:,nz)
+      vz(:,:,nz+1) = vz(:,:,nz+1)
+
     END IF
 
-    if (.false.) then
+    if (proc_z_min == MPI_PROC_NULL) then
       br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
       bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
@@ -313,7 +331,6 @@ CONTAINS
 
       fact0(0,:) = 0.0_num; fact0(nx,:) = 0.0_num
       fact0(:,0) = 0.0_num; fact0(:,ny) = 0.0_num
-
 
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
       vy_surf(0:nx, 0:ny) = fact0*bzdx0
@@ -338,31 +355,40 @@ CONTAINS
     real(num), dimension(:,:):: bzdy0(0:nx,0:ny), bzdx0(0:nx,0:ny)
     real(num), dimension(:,:):: fact(0:nx+1,0:ny+1), fact0(0:nx,0:ny)
     real(num), dimension(:,:):: vx_surf(0:nx,0:ny), vy_surf(0:nx,0:ny)
+    INTEGER:: i,j
 
     CALL remap_v_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
       vx1(-2:0,:,:) = 0.0_num
       vy1(-2:0,:,:) = 0.0_num
-      vz1(-2:0,:,:) = 0.0_num
+      vz1(0,:,:) = vz1(1,:,:)
+      vz1(-1,:,:) = vz1(0,:,:)
+      vz1(-2,:,:) = vz1(-1,:,:)
     END IF
 
     IF (proc_x_max == MPI_PROC_NULL .AND. xbc_max == BC_USER) THEN
       vx1(nx:nx+2,:,:) = 0.0_num
       vy1(nx:nx+2,:,:) = 0.0_num
-      vz1(nx:nx+2,:,:) = 0.0_num
+      vz1(nx,:,:) = vz1(nx-1,:,:)
+      vz1(nx+1,:,:) = vz1(nx,:,:)
+      vz1(nx+2,:,:) = vz1(nx+2,:,:)
     END IF
 
     IF (proc_y_min == MPI_PROC_NULL .AND. ybc_min == BC_USER) THEN
       vx1(:,-2:0,:) = 0.0_num
       vy1(:,-2:0,:) = 0.0_num
-      vz1(:,-2:0,:) = 0.0_num
+      vz1(:,0,:) = vz1(:,1,:)
+      vz1(:,-1,:) = vz1(:,0,:)
+      vz1(:,-2,:) = vz1(:,-1,:)
     END IF
 
     IF (proc_y_max == MPI_PROC_NULL .AND. ybc_max == BC_USER) THEN
       vx1(:,ny:ny+2,:) = 0.0_num
       vy1(:,ny:ny+2,:) = 0.0_num
-      vz1(:,ny:ny+2,:) = 0.0_num
+      vz1(:,ny,:) = vz1(:,ny-1,:)
+      vz1(:,ny+1,:) = vz1(:,ny,:)
+      vz1(:,ny+2,:) = vz1(:,ny+1,:)
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
@@ -374,10 +400,16 @@ CONTAINS
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx1(:,:,nz:nz+2) = 0.0_num
       vy1(:,:,nz:nz+2) = 0.0_num
-      vz1(:,:,nz:nz+2) = 0.0_num
+      do i = -2, nx+2
+          do j = -2, ny+2
+          vz1(i, j, nz) = max(0.0,1.25*vz1(i,j,nz-1))
+          end do
+      end do
+      vz1(:,:,nz+1) = vz1(:,:,nz)
+      vz1(:,:,nz+1) = vz1(:,:,nz+1)
     END IF
 
-    if (.false.) then
+    if (proc_z_min == MPI_PROC_NULL) then
         br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
         bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
@@ -395,8 +427,8 @@ CONTAINS
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0
         vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
-        vx1(0:nx,0:ny,1) = vx1(0:nx,0:ny,1) + shearing_fact*vx_surf
-        vy1(0:nx,0:ny,1) = vy1(0:nx,0:ny,1) + shearing_fact*vy_surf
+        vx1(0:nx,0:ny,0) = vx1(0:nx,0:ny,0) + shearing_fact*vx_surf
+        vy1(0:nx,0:ny,0) = vy1(0:nx,0:ny,0) + shearing_fact*vy_surf
      end if
 
   END SUBROUTINE remap_v_bcs

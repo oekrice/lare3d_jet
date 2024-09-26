@@ -59,8 +59,11 @@ PROGRAM lare3d
     CALL set_initial_conditions  ! initial_conditions.f90
   END IF
 
+
   CALL set_boundary_conditions   ! boundary.f90
+
   CALL boundary_conditions       ! boundary.f90
+
   CALL eta_calc                  ! lagran.f90
 
   IF (eos_number /= EOS_IDEAL) CALL neutral_fraction ! neutral.f90
@@ -72,7 +75,6 @@ PROGRAM lare3d
   IF (rank == 0) PRINT*, 'Initial conditions setup OK. Running Code'
 
   DO
-
     if (time .ge. t_end*float(diag_num)/float(ndiags)) then   ! Save diagnostic data (more frequently than snapshots)
       !CALL test1
       if (rank == 0) print*, 'Diagnostic number', diag_num, 'at time', time
@@ -92,6 +94,9 @@ PROGRAM lare3d
     CALL lagrangian_step             ! lagran.f90
     CALL eulerian_remap(step)        ! remap.f90
     IF (rke) CALL energy_correction  ! diagnostics.f90
+
+    energy = energy +  correction_factor*dt*(energy_reference-energy)  !Energy correction factor for the Newton Cooling
+
     CALL eta_calc                    ! lagran.f90
   END DO
 

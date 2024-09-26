@@ -66,8 +66,9 @@ for plot_num in range(0,nsnaps,1):
     print('Loading file name', fname)
     print('Making plot', i, 'from run number', run_number)
 
-    while not os.path.exists(fname):
-        time.sleep(0.5)
+    fname_next = '%s%04d.nc' % (data_directory, i + 1)
+    while not os.path.exists(fname_next):
+        time.sleep(0.1)
     try:
         data = netcdf_file(fname, 'r', mmap=False)
         print('File', fname, 'found')
@@ -121,14 +122,13 @@ for plot_num in range(0,nsnaps,1):
         plt.colorbar(im, ax=axs[1,0])
         axs[1,0].set_title('Energy')
 
-        im = axs[1,1].pcolormesh(xs,zs,np.log(rho[1:-1,slice_index,1:-1].T))
+        im = axs[1,1].pcolormesh(xs,zs,rho[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[1,1])
-        axs[1,1].set_title('Density (log)')
+        axs[1,1].set_title('Density')
 
-
-        im = axs[1,2].pcolormesh(xs,zs,np.log(pr[1:-1,slice_index,1:-1].T/magfield(bx,by,bz).T))
+        im = axs[1,2].pcolormesh(xc,zc,vz[1:-1,slice_index,1:-1].T)
         plt.colorbar(im, ax=axs[1,2])
-        axs[1,2].set_title('Plasma Beta (log)')
+        axs[1,2].set_title('Vertical Velocity')
 
         plt.tight_layout()
         #plt.show()

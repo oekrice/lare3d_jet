@@ -218,14 +218,20 @@ MODULE shared_data
   INTEGER, PARAMETER :: stat_unit = 20
   INTEGER, PARAMETER :: en_unit = 30
 
+  !My variables
   INTEGER:: run_id, nplots, ndiags
   INTEGER:: diag_num, snap_num
 
+  CHARACTER(LEN=50):: data_directory !With no forward slash
   REAL(num):: bfield_fact, shearing_fact
   INTEGER, DIMENSION(3):: starts
   !Outputs
   REAL(num), DIMENSION(:), ALLOCATABLE:: diag_time
 
+  !My variables
+  REAL(num):: energy_init, density_init
+  REAL(num), DIMENSION(:,:,:), ALLOCATABLE:: energy_reference
+  REAL(num):: correction_factor
 
 END MODULE shared_data
 
