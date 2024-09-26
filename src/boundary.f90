@@ -328,10 +328,6 @@ CONTAINS
       fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
       fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
-
-      fact0(0,:) = 0.0_num; fact0(nx,:) = 0.0_num
-      fact0(:,0) = 0.0_num; fact0(:,ny) = 0.0_num
-
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
       vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
@@ -421,15 +417,13 @@ CONTAINS
         fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
         fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
-
-        fact0(0,:) = 0.0_num; fact0(nx,:) = 0.0_num
-        fact0(:,0) = 0.0_num; fact0(:,ny) = 0.0_num
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0
         vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
         vx1(0:nx,0:ny,0) = vx1(0:nx,0:ny,0) + shearing_fact*vx_surf
         vy1(0:nx,0:ny,0) = vy1(0:nx,0:ny,0) + shearing_fact*vy_surf
      end if
+
 
   END SUBROUTINE remap_v_bcs
 

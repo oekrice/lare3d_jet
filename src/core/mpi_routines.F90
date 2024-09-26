@@ -66,6 +66,7 @@ CONTAINS
     nproc_orig = nproc
     dims = (/nprocz, nprocy, nprocx/)
 
+
     IF (nx_global < ng .OR. ny_global < ng .OR. nz_global < ng) THEN
       IF (rank == 0) THEN
         PRINT*,'*** ERROR ***'
@@ -347,6 +348,8 @@ CONTAINS
     ohmic_dep = 0.0_num
 
     CALL mpi_create_types
+
+    print*, 'DIMS', nprocx, nprocy, nprocz
 
   END SUBROUTINE mpi_initialise
 
