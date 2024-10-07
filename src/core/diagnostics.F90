@@ -96,7 +96,7 @@ SUBROUTINE output_snap(snap_num)
     INTEGER:: en_id, rho_id
     INTEGER:: vx_id, vy_id, vz_id
 
-    if (.true.) then
+    if (remote_flag > 0.5_num) then
       if (snap_num < 10) then
           write (output_filename, "(A7,A3,I1,A3)") "./Data/", "000", snap_num, ".nc"
       else if (snap_num < 100) then

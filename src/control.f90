@@ -98,6 +98,7 @@ CONTAINS
     ny_global = int(vars(15))
     nz_global = int(vars(16))
 
+    remote_flag = int(vars(17))
     ! Set the maximum number of iterations of the core solver before the code
     ! terminates. If nsteps < 0 then the code will run until t = t_end
     nsteps = -1

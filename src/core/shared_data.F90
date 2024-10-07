@@ -220,7 +220,7 @@ MODULE shared_data
 
   !My variables
   INTEGER:: run_id, nplots, ndiags
-  INTEGER:: diag_num, snap_num
+  INTEGER:: diag_num, snap_num, remote_flag
 
   CHARACTER(LEN=50):: data_directory !With no forward slash
   REAL(num):: bfield_fact, shearing_fact

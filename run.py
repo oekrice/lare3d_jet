@@ -33,10 +33,10 @@ if len(sys.argv) > 2:
 else:
     ncores = 1
 
-if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
-    hamilton_flag = 1
-else:
+if os.uname()[1][-14:] == 'brilluoin.dur.ac.uk':
     hamilton_flag = 0
+else:
+    hamilton_flag = 1
 
 if not hamilton_flag:
     data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
