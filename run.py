@@ -58,9 +58,9 @@ z0 = -1.0/ny; z1 = 24
 shearfact = 3.7e-5
 bfact = 1.0
 
-nplots = 250
+nplots = 500
 ndiags = 1000
-tmax = 250.0
+tmax = 500.0
 
 eta = 1e-6
 
