@@ -22,8 +22,6 @@ import matplotlib.pyplot as plt
 
 #os.system('killall mf2d')
 
-data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
-#data_directory = './Data'
 
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
@@ -39,6 +37,11 @@ if os.uname()[1][-14:] == 'ham8.dur.ac.uk':
     hamilton_flag = 1
 else:
     hamilton_flag = 0
+
+if not hamilton_flag:
+    data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
+else:
+    data_directory = './Data'
 
 if os.path.isdir(data_directory):
     for i in range(1000):
