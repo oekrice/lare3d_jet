@@ -312,7 +312,6 @@ CONTAINS
           end do
       end do
       vz(:,:,nz+1) = vz(:,:,nz)
-      vz(:,:,nz+1) = vz(:,:,nz+1)
 
     END IF
 
@@ -331,8 +330,8 @@ CONTAINS
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
       vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
-      vx(0:nx,0:ny,0) = vx(0:nx,0:ny,0) + shearing_fact*vx_surf
-      vy(0:nx,0:ny,0) = vy(0:nx,0:ny,0) + shearing_fact*vy_surf
+      vx(0:nx,0:ny,0) = shearing_fact*vx_surf
+      vy(0:nx,0:ny,0) = shearing_fact*vy_surf
 
     end if
 
@@ -402,7 +401,6 @@ CONTAINS
           end do
       end do
       vz1(:,:,nz+1) = vz1(:,:,nz)
-      vz1(:,:,nz+1) = vz1(:,:,nz+1)
     END IF
 
     if (proc_z_min == MPI_PROC_NULL) then
@@ -420,8 +418,8 @@ CONTAINS
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0
         vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
-        vx1(0:nx,0:ny,0) = vx1(0:nx,0:ny,0) + shearing_fact*vx_surf
-        vy1(0:nx,0:ny,0) = vy1(0:nx,0:ny,0) + shearing_fact*vy_surf
+        vx1(0:nx,0:ny,0) = shearing_fact*vx_surf
+        vy1(0:nx,0:ny,0) = shearing_fact*vy_surf
      end if
 
 
