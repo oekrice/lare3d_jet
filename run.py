@@ -20,9 +20,6 @@ from scipy.io import netcdf_file
 from init_bfield import compute_initial_condition
 import matplotlib.pyplot as plt
 
-#os.system('killall mf2d')
-
-
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
 else:
@@ -50,9 +47,9 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-nx = 64
-ny = 64
-nz = 64
+nx = 96
+ny = 96
+nz = 96
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
@@ -60,6 +57,9 @@ z0 = -1.0/ny; z1 = 24
 
 shearfact = 3.7e-5
 bfact = 1.0
+
+density_init = 1.0
+energy_init = 1.5e-2
 
 nplots = 500
 ndiags = 1000
@@ -88,7 +88,8 @@ variables[13] = nx
 variables[14] = ny
 variables[15] = nz
 variables[16] = hamilton_flag
-
+variables[17] = density_init
+variables[18] = energy_init
 
 if True:
     class Grid():

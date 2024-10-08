@@ -195,7 +195,7 @@ CONTAINS
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      rho(:,:, 1) = density_init
+      !rho(:,:, 1) = density_init
       rho(:,:, 0) = rho(:,:,1)
       rho(:,:,-1) = rho(:,:,2)
     END IF
@@ -333,8 +333,14 @@ CONTAINS
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
       vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
-      vx(0:nx,0:ny,0) = vx(0:nx,0:ny,0) + shearing_fact*vx_surf
-      vy(0:nx,0:ny,0) = vy(0:nx,0:ny,0) + shearing_fact*vy_surf
+      vx(0:nx,0:ny,0) = shearing_fact*vx_surf
+      vy(0:nx,0:ny,0) = shearing_fact*vy_surf
+
+      vx(0:nx,0:ny,-1) = vx(0:nx,0:ny,0)
+      vx(0:nx,0:ny,-2) = vx(0:nx,0:ny,-1)
+
+      vy(0:nx,0:ny,-1) = vy(0:nx,0:ny,0)
+      vy(0:nx,0:ny,-2) = vy(0:nx,0:ny,-1)
 
     end if
 
@@ -422,8 +428,15 @@ CONTAINS
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0
         vy_surf(0:nx, 0:ny) = fact0*bzdx0
 
-        vx1(0:nx,0:ny,0) = vx1(0:nx,0:ny,0) + shearing_fact*vx_surf
-        vy1(0:nx,0:ny,0) = vy1(0:nx,0:ny,0) + shearing_fact*vy_surf
+        vx1(0:nx,0:ny,0) = shearing_fact*vx_surf
+        vy1(0:nx,0:ny,0) = shearing_fact*vy_surf
+
+        vx1(0:nx,0:ny,-1) = vx1(0:nx,0:ny,0)
+        vx1(0:nx,0:ny,-2) = vx1(0:nx,0:ny,-1)
+
+        vy1(0:nx,0:ny,-1) = vy1(0:nx,0:ny,0)
+        vy1(0:nx,0:ny,-2) = vy1(0:nx,0:ny,-1)
+
      end if
 
 

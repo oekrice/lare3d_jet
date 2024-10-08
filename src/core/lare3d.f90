@@ -96,6 +96,7 @@ PROGRAM lare3d
     IF (rke) CALL energy_correction  ! diagnostics.f90
 
     energy = energy +  correction_factor*dt*(energy_reference-energy)  !Energy correction factor for the Newton Cooling
+    !energy = energy_reference
 
     CALL eta_calc                    ! lagran.f90
   END DO

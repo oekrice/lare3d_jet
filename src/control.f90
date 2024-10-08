@@ -107,8 +107,8 @@ CONTAINS
     t_end = vars(3)
 
     !Initial variables
-    energy_init = 1.5d-2
-    density_init = 1.0_num
+    density_init = vars(18)
+    energy_init = vars(19)
 
     ! Shock viscosities as detailed in manual - they are dimensionless
     visc1 = 0.1_num

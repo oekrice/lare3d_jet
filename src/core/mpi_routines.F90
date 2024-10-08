@@ -349,7 +349,6 @@ CONTAINS
 
     CALL mpi_create_types
 
-    print*, 'DIMS', nprocx, nprocy, nprocz
 
   END SUBROUTINE mpi_initialise
 

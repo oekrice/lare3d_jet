@@ -126,7 +126,9 @@ for plot_num in range(0,nsnaps,1):
     vy = np.swapaxes(data.variables['vy'][:],0,2)
     vz = np.swapaxes(data.variables['vz'][:],0,2)
 
-    pr = rho*en*2/3
+    pr = rho*en*(2/3)
+
+    data.close()
 
     def magfield(bx, by, bz):
         bx1 = 0.5*(bx[1:,slice_index,1:-1] + bx[:-1,slice_index,1:-1])
@@ -134,10 +136,10 @@ for plot_num in range(0,nsnaps,1):
         bz1 = 0.5*(bz[1:-1,slice_index,1:] + bz[1:-1,slice_index,:-1])
         return 0.5*(bx1**2 + by1**2+ bz1**2)
 
-    data.close()
-
     if np.max(magfield(bx,by,bz)) > 1e-6:
-        beta = pr[1:-1,slice_index,1:-1].T/magfield(bx,by,bz).T
+        beta = 4*np.pi*pr[1:-1,slice_index,1:-1].T/magfield(bx,by,bz).T
+    else:
+        beta = 0.0*pr[1:-1,slice_index,1:-1].T
 
     if False:
         trace_fieldlines(Grid(),bx,by,bz,save=plot_num,plot_vista = True)
@@ -159,27 +161,27 @@ for plot_num in range(0,nsnaps,1):
 
         a = find_a(bx, by)
 
-        im = axs[0,0].pcolormesh(xc,zs,bx[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(bx)), vmax = np.max(np.abs(bx)), cmap ='seismic')
+        im = axs[0,0].pcolormesh(xc,zs,bx[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(bx[1:-1,slice_index,1:-1])), vmax = np.max(np.abs(bx[1:-1,slice_index,1:-1])), cmap ='seismic')
         plt.colorbar(im, ax=axs[0,0])
         axs[0,0].set_title('Bx')
 
-        im = axs[0,1].pcolormesh(xs,zs,by[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(by)), vmax = np.max(np.abs(by)), cmap ='seismic')
+        im = axs[0,1].pcolormesh(xs,zs,by[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(by[1:-1,slice_index,1:-1])), vmax = np.max(np.abs(by[1:-1,slice_index,1:-1])), cmap ='seismic')
         plt.colorbar(im, ax=axs[0,1])
         axs[0,1].set_title('By')
 
-        im = axs[0,2].pcolormesh(xs,zc,bz[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(bz)), vmax = np.max(np.abs(bz)), cmap ='seismic')
+        im = axs[0,2].pcolormesh(xs,zc,bz[1:-1,slice_index,1:-1].T,vmin=-np.max(np.abs(bz[1:-1,slice_index,1:-1])), vmax = np.max(np.abs(bz[1:-1,slice_index,1:-1])), cmap ='seismic')
         plt.colorbar(im, ax=axs[0,2])
         axs[0,2].set_title('Bz')
 
-        im = axs[1,3].pcolormesh(xs,zs,en[1:-1,slice_index,1:-1].T)
+        im = axs[1,3].pcolormesh(xs,zs,en[1:-1,slice_index,1:-1].T,vmin = 0.0)
         plt.colorbar(im, ax=axs[1,3])
         axs[1,3].set_title('Internal Energy')
 
-        im = axs[1,0].pcolormesh(xs,zs,pr[1:-1,slice_index,1:-1].T)
+        im = axs[1,0].pcolormesh(xs,zs,pr[1:-1,slice_index,1:-1].T,vmin = 0.0)
         plt.colorbar(im, ax=axs[1,0])
         axs[1,0].set_title('Pressure')
 
-        im = axs[1,1].pcolormesh(xs,zs,rho[1:-1,slice_index,1:-1].T)
+        im = axs[1,1].pcolormesh(xs,zs,rho[1:-1,slice_index,1:-1].T,vmin = 0.0)
         plt.colorbar(im, ax=axs[1,1])
         axs[1,1].set_title('Density')
 
@@ -187,6 +189,11 @@ for plot_num in range(0,nsnaps,1):
         plt.colorbar(im, ax=axs[1,2])
         axs[1,2].set_title('Vertical Velocity')
 
+        im = axs[0,3].pcolormesh(xc,zc,beta,vmin=0.0, vmax = np.max(np.abs(beta)))
+        plt.colorbar(im, ax=axs[0,3])
+        axs[0,3].set_title('Plasma Beta')
+
+        print(beta[slice_index, slice_index])
         plt.tight_layout()
         #plt.show()
         plt.savefig('plots/a%04d' % plot_num)

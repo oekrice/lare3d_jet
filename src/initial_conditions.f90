@@ -63,11 +63,6 @@ CONTAINS
     do i = -1,nx+2
     do j = -1,ny+2
     do k = -1,nz+2
-        if (zc(k) > 12.0_num + 1.0_num*sin(xc(i)*yc(j))) then
-          rho(i,j,k) = 1.0_num
-        ELSE
-          rho(i,j,k) = 0.9_num
-        end if
     end do
     end do
     end do
@@ -99,7 +94,7 @@ CONTAINS
     rho(:,:,:) = density_init
     density_init = rho(0,0,1)  !Switch to bottom reference
 
-    do k = 0, nz+2
+    do k = 1, nz+2
       vz(:,:,k) = 0.0_num*(zb(k)/zb_global(nz_global))**2
     end do
 
