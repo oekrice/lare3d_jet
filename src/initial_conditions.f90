@@ -113,17 +113,17 @@ CONTAINS
       DO iz = -1, nz+1
         DO iy = -1, ny + 1
           DO ix = -1, nx + 1
-            visc3(ix,iy,iz) = visc3(ix,iy,iz) + amp * (1.0_num + TANH((ABS(zb(iz)) - centre) / width)) 
+            visc3(ix,iy,iz) = visc3(ix,iy,iz) + amp * (1.0_num + TANH((ABS(zb(iz)) - centre) / width))
           END DO
         END DO
       END DO
-    END IF    
-  
+    END IF
+
     ! Import initial magnetic field
     CALL import_bfield
 
   END SUBROUTINE set_initial_conditions
-  
+
   SUBROUTINE import_bfield()
 
     ! Imports the initial condition from the inits file.
