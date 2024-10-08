@@ -18,6 +18,10 @@ from fltrace import trace_fieldlines
 
 #matplotlib.rcParams['text.usetex'] = True
 
+if import_data:   #copies data from archie into the local file for plotting
+    os.system('scp -r pjb20205@:/home/trcn27/mf_stratified/parameters /home/grads/trcn27/Documents/postdoc/mf_stratified/')
+
+
 if len(sys.argv) > 1:
     run = int(sys.argv[1])
 else:

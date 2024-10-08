@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import vtk
 import os
 
 if os.uname()[1] == 'brillouin.dur.ac.uk':
