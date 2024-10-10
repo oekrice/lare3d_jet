@@ -419,7 +419,6 @@ CONTAINS
         vx1(0:nx,0:ny,0) = shearing_fact*vx_surf
         vy1(0:nx,0:ny,0) = shearing_fact*vy_surf
 
-
      end if
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN

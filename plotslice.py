@@ -141,11 +141,11 @@ for plot_num in range(0,nsnaps,1):
     else:
         beta = 0.0*pr[1:-1,slice_index,1:-1].T
 
-    if True:
+    if False:
         trace_fieldlines(Grid(),bx,by,bz,save=plot_num,plot_vista = False, plot_notvista = True)
 
     if True:
-        fig, axs = plt.subplots(2,4, figsize = (10,4))
+        fig, axs = plt.subplots(3,4, figsize = (10,6))
 
         def find_a(bx, bz):   #find the vector potential a from the (hopefully) divergence-free magnetic fields
             a = np.zeros((nx, nz))
@@ -192,6 +192,15 @@ for plot_num in range(0,nsnaps,1):
         im = axs[0,3].pcolormesh(xc,zc,beta,vmin=0.0, vmax = np.max(np.abs(beta)))
         plt.colorbar(im, ax=axs[0,3])
         axs[0,3].set_title('Plasma Beta')
+
+        im = axs[2,1].pcolormesh(xc,yc,vx[1:-1,1:-1,0])
+        plt.colorbar(im, ax=axs[2,1])
+        axs[2,1].set_title('Surface Vx')
+
+        im = axs[2,2].pcolormesh(xc,yc,vy[1:-1,1:-1,0])
+        plt.colorbar(im, ax=axs[2,2])
+        axs[2,2].set_title('Surface Vy')
+
 
         print(beta[slice_index, slice_index])
         plt.tight_layout()
