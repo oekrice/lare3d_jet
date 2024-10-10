@@ -296,11 +296,6 @@ CONTAINS
       vz(:,ny+2,:) = vz(:,ny+1,:)
     END IF
 
-    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      vx(:,:,-2:0) = 0.0_num
-      vy(:,:,-2:0) = 0.0_num
-      vz(:,:,-2:0) = 0.0_num
-    END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx(:,:,nz:nz+2) = 0.0_num
@@ -334,6 +329,14 @@ CONTAINS
       vy(0:nx,0:ny,0) = shearing_fact*vy_surf
 
     end if
+
+    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
+      vx(:,:,-1) = vx(:,:,0)
+      vx(:,:,-2) = vx(:,:,-1)
+      vy(:,:,-1) = vy(:,:,0)
+      vy(:,:,-2) = vy(:,:,-1)
+      vz(:,:,-2:0) = 0.0_num
+    END IF
 
   END SUBROUTINE velocity_bcs
 
@@ -386,11 +389,6 @@ CONTAINS
       vz1(:,ny+2,:) = vz1(:,ny+1,:)
     END IF
 
-    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      vx1(:,:,-2:0) = 0.0_num
-      vy1(:,:,-2:0) = 0.0_num
-      vz1(:,:,-2:0) = 0.0_num
-    END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx1(:,:,nz:nz+2) = 0.0_num
@@ -420,8 +418,17 @@ CONTAINS
 
         vx1(0:nx,0:ny,0) = shearing_fact*vx_surf
         vy1(0:nx,0:ny,0) = shearing_fact*vy_surf
+
+
      end if
 
+    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
+      vx1(:,:,-1) = vx1(:,:,0)
+      vx1(:,:,-2) = vx1(:,:,-1)
+      vy1(:,:,-1) = vy1(:,:,0)
+      vy1(:,:,-2) = vy1(:,:,-1)
+      vz1(:,:,-2:0) = 0.0_num
+    END IF
 
   END SUBROUTINE remap_v_bcs
 
