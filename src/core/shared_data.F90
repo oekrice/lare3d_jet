@@ -232,6 +232,7 @@ MODULE shared_data
   REAL(num):: energy_init, density_init
   REAL(num), DIMENSION(:,:,:), ALLOCATABLE:: energy_reference
   REAL(num):: correction_factor
+  REAL(num), DIMENSION(:,:), ALLOCATABLE:: bz_surf_reference  !Initial bz surface distribution
 
 END MODULE shared_data
 

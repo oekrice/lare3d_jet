@@ -193,14 +193,17 @@ for plot_num in range(0,nsnaps,1):
         plt.colorbar(im, ax=axs[0,3])
         axs[0,3].set_title('Plasma Beta')
 
-        im = axs[2,1].pcolormesh(xc,yc,vx[1:-1,1:-1,0])
+        im = axs[2,0].pcolormesh(xc,yc,vx[1:-1,1:-1,0])
+        plt.colorbar(im, ax=axs[2,0])
+        axs[2,0].set_title('Surface Vx')
+
+        im = axs[2,1].pcolormesh(xc,yc,vy[1:-1,1:-1,0])
         plt.colorbar(im, ax=axs[2,1])
-        axs[2,1].set_title('Surface Vx')
+        axs[2,1].set_title('Surface Vy')
 
-        im = axs[2,2].pcolormesh(xc,yc,vy[1:-1,1:-1,0])
+        im = axs[2,2].pcolormesh(xc,yc,bz[1:-1,1:-1,0])
         plt.colorbar(im, ax=axs[2,2])
-        axs[2,2].set_title('Surface Vy')
-
+        axs[2,2].set_title('Surface Bz')
 
         print(beta[slice_index, slice_index])
         plt.tight_layout()

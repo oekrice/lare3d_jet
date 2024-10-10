@@ -313,13 +313,13 @@ CONTAINS
     if (proc_z_min == MPI_PROC_NULL) then
       br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
-      bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
-      bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+      bzdy = (bz_surf_reference(0:nx+1,1:ny+1) - bz_surf_reference(0:nx+1,0:ny)) / dyb(1)
+      bzdx = (bz_surf_reference(1:nx+1,0:ny+1) - bz_surf_reference(0:nx,0:ny+1)) / dxb(1)
 
       bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
       bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
 
-      fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+      fact = (kb*(br-bl))/(bz_surf_reference(0:nx+1,0:ny+1) + 1d-10)*tanh(kb*(bz_surf_reference(0:nx+1,0:ny+1)- bl)/(br-bl+1d-10))
       fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
@@ -404,13 +404,13 @@ CONTAINS
     if (proc_z_min == MPI_PROC_NULL) then
         br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
-        bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
-        bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+        bzdy = (bz_surf_reference(0:nx+1,1:ny+1) - bz_surf_reference(0:nx+1,0:ny)) / dyb(1)
+        bzdx = (bz_surf_reference(1:nx+1,0:ny+1) - bz_surf_reference(0:nx,0:ny+1)) / dxb(1)
 
         bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
         bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
 
-        fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+        fact = (kb*(br-bl))/(bz_surf_reference(0:nx+1,0:ny+1) + 1d-10)*tanh(kb*(bz_surf_reference(0:nx+1,0:ny+1)- bl)/(br-bl+1d-10))
         fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0

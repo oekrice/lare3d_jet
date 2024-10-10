@@ -132,6 +132,7 @@ CONTAINS
     CHARACTER(LEN =64):: init_filename
     INTEGER:: ncid, vid, run_id
 
+
     if (run_id < 10) then
       write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(run_id), '.nc'
     else if (run_id < 100) then
@@ -162,8 +163,13 @@ CONTAINS
     by = by*bfield_fact
     bz = bz*bfield_fact
 
+    !print*, 'shape bz', shape(bz), shape(bz_surf_reference)
+
     CALL bfield_bcs
 
+    allocate(bz_surf_reference(0:nx+1, 0:ny+1))
+
+    bz_surf_reference = bz(0:nx+1, 0:ny+1, 0)
 
 END SUBROUTINE import_bfield
 
