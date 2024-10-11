@@ -67,6 +67,8 @@ CONTAINS
     end do
     end do
 
+    vz(:,:,1:nz+2) = 0.1_num
+
     rho(-1:nx+2,-1:ny+2,-1:nz+2) = density_init
 
     deltaz = zstar/10.0
