@@ -47,9 +47,9 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-nx = 96
-ny = 96
-nz = 96
+nx = 128
+ny = 128
+nz = 128
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
@@ -61,9 +61,9 @@ bfact = 1.0
 density_init = 1.0
 energy_init = 1.5e-2
 
-nplots = 500
+nplots = 1000
 ndiags = 1000
-tmax = 500.0
+tmax = 1000.0
 
 eta = 1e-6
 

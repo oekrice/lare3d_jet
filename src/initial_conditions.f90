@@ -113,17 +113,17 @@ CONTAINS
       DO iz = -1, nz+1
         DO iy = -1, ny + 1
           DO ix = -1, nx + 1
-            visc3(ix,iy,iz) = visc3(ix,iy,iz) + amp * (1.0_num + TANH((ABS(zb(iz)) - centre) / width)) 
+            visc3(ix,iy,iz) = visc3(ix,iy,iz) + amp * (1.0_num + TANH((ABS(zb(iz)) - centre) / width))
           END DO
         END DO
       END DO
-    END IF    
-  
+    END IF
+
     ! Import initial magnetic field
     CALL import_bfield
 
   END SUBROUTINE set_initial_conditions
-  
+
   SUBROUTINE import_bfield()
 
     ! Imports the initial condition from the inits file.
@@ -131,6 +131,7 @@ CONTAINS
 
     CHARACTER(LEN =64):: init_filename
     INTEGER:: ncid, vid, run_id
+
 
     if (run_id < 10) then
       write (init_filename, "(A12, A2, I1, A3)") './inits/init', '00', int(run_id), '.nc'
@@ -162,8 +163,13 @@ CONTAINS
     by = by*bfield_fact
     bz = bz*bfield_fact
 
+    !print*, 'shape bz', shape(bz), shape(bz_surf_reference)
+
     CALL bfield_bcs
 
+    allocate(bz_surf_reference(0:nx+1, 0:ny+1))
+
+    bz_surf_reference = bz(0:nx+1, 0:ny+1, 0)
 
 END SUBROUTINE import_bfield
 

@@ -65,56 +65,54 @@ CONTAINS
     CALL bfield_mpi
 
     IF (proc_x_min == MPI_PROC_NULL .AND. xbc_min == BC_USER) THEN
-      bz(0,0:ny+1,0:nz) = bz(1,0:ny+1,0:nz) - dxb(0)*(bx(0,0:ny+1,1:nz+1) - bx(0, 0:ny+1,0:nz))/dzb(0)
-      by(0,0:ny,0:nz+1) = by(1, 0:ny,0:nz+1) - dxb(0)*(bx(0,1:ny+1,0:nz+1) - bx(0,0:ny,0:nz+1))/dyb(0)
       bx(-1,:,:) = 0.0_num
       bx(-2,:,:) = 0.0_num
+      by( 0,:,:) = by(1,:,:)
       by(-1,:,:) = by(2,:,:)
+      bz( 0,:,:) = bz(1,:,:)
       bz(-1,:,:) = bz(2,:,:)
     END IF
 
     IF (proc_x_max == MPI_PROC_NULL .AND. xbc_max == BC_USER) THEN
-      bz(nx+1,0:ny+1,0:nz) = bz(nx,0:ny+1,0:nz) + dxb(0)*(bx(nx,0:ny+1,1:nz+1) - bx(nx, 0:ny+1,0:nz))/dzb(0)
-      by(nx+1,0:ny,0:nz+1) = by(nx, 0:ny,0:nz+1) + dxb(0)*(bx(nx,1:ny+1,0:nz+1) - bx(nx,0:ny,0:nz+1))/dyb(0)
       bx(nx+1,:,:) = 0.0_num
       bx(nx+2,:,:) = 0.0_num
+      by(nx+1,:,:) = by(nx  ,:,:)
       by(nx+2,:,:) = by(nx-1,:,:)
+      bz(nx+1,:,:) = bz(nx  ,:,:)
       bz(nx+2,:,:) = bz(nx-1,:,:)
     END IF
 
     IF (proc_y_min == MPI_PROC_NULL .AND. ybc_min == BC_USER) THEN
-      bz(0:nx+1,0,0:nz) = bz(0:nx+1, 1,0:nz) - dyb(0)*(by(0:nx+1,0,1:nz+1) - by(0:nx+1,0,0:nz))/dzb(0)
-      bx(0:nx,0,0:nz+1) = bx(0:nx,1,0:nz+1) - dyb(0)*(by(1:nx+1,0,0:nz+1) - by(0:nx, 0,0:nz+1))/dxb(0)
+      bx(:, 0,:) = bx(:,1,:)
       bx(:,-1,:) = bx(:,2,:)
       by(:,-1,:) = 0.0_num
       by(:,-2,:) = 0.0_num
+      bz(:, 0,:) = bz(:,1,:)
       bz(:,-1,:) = bz(:,2,:)
     END IF
 
     IF (proc_y_max == MPI_PROC_NULL .AND. ybc_max == BC_USER) THEN
-
-      bz(0:nx+1,ny+1,0:nz) = bz(0:nx+1, ny,0:nz) + dyb(0)*(by(0:nx+1,ny,1:nz+1) - by(0:nx+1,ny,0:nz))/dzb(0)
-      bx(0:nx,ny+1,0:nz+1) = bx(0:nx,ny,0:nz+1) + dyb(0)*(by(1:nx+1,ny,0:nz+1) - by(0:nx, ny,0:nz+1))/dxb(0)
-
+      bx(:,ny+1,:) = bx(:,ny  ,:)
       bx(:,ny+2,:) = bx(:,ny-1,:)
       by(:,ny+1,:) = 0.0_num
       by(:,ny+2,:) = 0.0_num
+      bz(:,ny+1,:) = bz(:,ny  ,:)
       bz(:,ny+2,:) = bz(:,ny-1,:)
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      by(0:nx+1,0:ny,0) = by(0:nx+1,0:ny,1) - dzb(0)*(bz(0:nx+1,1:ny+1,0) - bz(0:nx+1, 0:ny,0))/dyb(0)
-      bx(0:nx, 0:ny+1,0) = bx(0:nx,0:ny+1,1) - dzb(0)*(bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0))/dxb(0)
+      bx(:,:, 0) = bx(:,:,1)
       bx(:,:,-1) = bx(:,:,2)
+      by(:,:, 0) = by(:,:,1)
       by(:,:,-1) = by(:,:,2)
       bz(:,:,-1) = bz(:,:,1)
       bz(:,:,-2) = bz(:,:,2)
     END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
-      by(0:nx+1,0:ny,nz+1) = by(0:nx+1,0:ny,nz) + dzb(0)*(bz(0:nx+1,1:ny+1,nz) - bz(0:nx+1, 0:ny,nz))/dyb(0)
-      bx(0:nx, 0:ny+1,nz+1) = bx(0:nx,0:ny+1,nz) + dzb(0)*(bz(1:nx+1,0:ny+1,nz) - bz(0:nx,0:ny+1,nz))/dxb(0)
+      bx(:,:,nz+1) = bx(:,:,nz  )
       bx(:,:,nz+2) = bx(:,:,nz-1)
+      by(:,:,nz+1) = by(:,:,nz  )
       by(:,:,nz+2) = by(:,:,nz-1)
       bz(:,:,nz+1) = bz(:,:,nz-1)
       bz(:,:,nz+2) = bz(:,:,nz-2)
@@ -195,7 +193,7 @@ CONTAINS
     END IF
 
     IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      !rho(:,:, 1) = density_init
+      rho(:,:, 1) = density_init
       rho(:,:, 0) = rho(:,:,1)
       rho(:,:,-1) = rho(:,:,2)
     END IF
@@ -298,11 +296,6 @@ CONTAINS
       vz(:,ny+2,:) = vz(:,ny+1,:)
     END IF
 
-    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      vx(:,:,-2:0) = 0.0_num
-      vy(:,:,-2:0) = 0.0_num
-      vz(:,:,-2:0) = 0.0_num
-    END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx(:,:,nz:nz+2) = 0.0_num
@@ -314,20 +307,19 @@ CONTAINS
           end do
       end do
       vz(:,:,nz+1) = vz(:,:,nz)
-      vz(:,:,nz+1) = vz(:,:,nz+1)
 
     END IF
 
     if (proc_z_min == MPI_PROC_NULL) then
       br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
-      bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
-      bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+      bzdy = (bz_surf_reference(0:nx+1,1:ny+1) - bz_surf_reference(0:nx+1,0:ny)) / dyb(1)
+      bzdx = (bz_surf_reference(1:nx+1,0:ny+1) - bz_surf_reference(0:nx,0:ny+1)) / dxb(1)
 
       bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
       bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
 
-      fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+      fact = (kb*(br-bl))/(bz_surf_reference(0:nx+1,0:ny+1) + 1d-10)*tanh(kb*(bz_surf_reference(0:nx+1,0:ny+1)- bl)/(br-bl+1d-10))
       fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
       vx_surf(0:nx, 0:ny) = -fact0*bzdy0
@@ -336,13 +328,15 @@ CONTAINS
       vx(0:nx,0:ny,0) = shearing_fact*vx_surf
       vy(0:nx,0:ny,0) = shearing_fact*vy_surf
 
-      vx(0:nx,0:ny,-1) = vx(0:nx,0:ny,0)
-      vx(0:nx,0:ny,-2) = vx(0:nx,0:ny,-1)
-
-      vy(0:nx,0:ny,-1) = vy(0:nx,0:ny,0)
-      vy(0:nx,0:ny,-2) = vy(0:nx,0:ny,-1)
-
     end if
+
+    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
+      vx(:,:,-1) = vx(:,:,0)
+      vx(:,:,-2) = vx(:,:,-1)
+      vy(:,:,-1) = vy(:,:,0)
+      vy(:,:,-2) = vy(:,:,-1)
+      vz(:,:,-2:0) = 0.0_num
+    END IF
 
   END SUBROUTINE velocity_bcs
 
@@ -395,11 +389,6 @@ CONTAINS
       vz1(:,ny+2,:) = vz1(:,ny+1,:)
     END IF
 
-    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
-      vx1(:,:,-2:0) = 0.0_num
-      vy1(:,:,-2:0) = 0.0_num
-      vz1(:,:,-2:0) = 0.0_num
-    END IF
 
     IF (proc_z_max == MPI_PROC_NULL .AND. zbc_max == BC_USER) THEN
       vx1(:,:,nz:nz+2) = 0.0_num
@@ -410,19 +399,18 @@ CONTAINS
           end do
       end do
       vz1(:,:,nz+1) = vz1(:,:,nz)
-      vz1(:,:,nz+1) = vz1(:,:,nz+1)
     END IF
 
     if (proc_z_min == MPI_PROC_NULL) then
         br = 13.0_num*bfield_fact; bl = 0.1_num*bfield_fact; kb = 15.0_num
 
-        bzdy = (bz(0:nx+1,1:ny+1,0) - bz(0:nx+1,0:ny,0)) / dyb(1)
-        bzdx = (bz(1:nx+1,0:ny+1,0) - bz(0:nx,0:ny+1,0)) / dxb(1)
+        bzdy = (bz_surf_reference(0:nx+1,1:ny+1) - bz_surf_reference(0:nx+1,0:ny)) / dyb(1)
+        bzdx = (bz_surf_reference(1:nx+1,0:ny+1) - bz_surf_reference(0:nx,0:ny+1)) / dxb(1)
 
         bzdy0 = 0.5_num*(bzdy(1:nx+1,0:ny) + bzdy(0:nx,0:ny))
         bzdx0 = 0.5_num*(bzdx(0:nx,1:ny+1) + bzdx(0:nx,0:ny))
 
-        fact = (kb*(br-bl))/(bz(0:nx+1,0:ny+1,0) + 1d-10)*tanh(kb*(bz(0:nx+1,0:ny+1,0)- bl)/(br-bl+1d-10))
+        fact = (kb*(br-bl))/(bz_surf_reference(0:nx+1,0:ny+1) + 1d-10)*tanh(kb*(bz_surf_reference(0:nx+1,0:ny+1)- bl)/(br-bl+1d-10))
         fact0 = 0.25_num*(fact(0:nx,0:ny) + fact(1:nx+1,0:ny) + fact(0:nx,1:ny+1) + fact(1:nx+1, 1:ny+1))
 
         vx_surf(0:nx, 0:ny) = -fact0*bzdy0
@@ -431,14 +419,15 @@ CONTAINS
         vx1(0:nx,0:ny,0) = shearing_fact*vx_surf
         vy1(0:nx,0:ny,0) = shearing_fact*vy_surf
 
-        vx1(0:nx,0:ny,-1) = vx1(0:nx,0:ny,0)
-        vx1(0:nx,0:ny,-2) = vx1(0:nx,0:ny,-1)
-
-        vy1(0:nx,0:ny,-1) = vy1(0:nx,0:ny,0)
-        vy1(0:nx,0:ny,-2) = vy1(0:nx,0:ny,-1)
-
      end if
 
+    IF (proc_z_min == MPI_PROC_NULL .AND. zbc_min == BC_USER) THEN
+      vx1(:,:,-1) = vx1(:,:,0)
+      vx1(:,:,-2) = vx1(:,:,-1)
+      vy1(:,:,-1) = vy1(:,:,0)
+      vy1(:,:,-2) = vy1(:,:,-1)
+      vz1(:,:,-2:0) = 0.0_num
+    END IF
 
   END SUBROUTINE remap_v_bcs
 
