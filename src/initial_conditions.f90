@@ -48,7 +48,7 @@ CONTAINS
     REAL(num), DIMENSION(:,:,:), ALLOCATABLE :: temperature
     REAL(num) :: xi_v, amp, centre, width
     INTEGER:: i,j,k
-    REAL(num):: p0, deltaz
+    REAL(num):: p0, deltaz, dg
     REAL(num), DIMENSION(:), ALLOCATABLE:: init_pressure !Initial pressure field (1D)
 
     ! Below are all the variables which must be defined and their sizes
@@ -80,20 +80,47 @@ CONTAINS
 
     energy = energy_init
 
-    grav(-1:nz+2) = 0.0_num
+    grav(-1:nz+2) = 1e-4
 
     ALLOCATE(init_pressure(-1:nz+2))
 
     p0 = energy_init*rho(0,0,nz+2)*(gamma - 1.0_num) !Pressure at upper boundary, then integrate downwards
     init_pressure(nz+2) = p0
 
-    do k = 0, nz+2
-        rho(:,:,k) = rho(:,:,k-1) + (dzb(k)/(0.5*(energy(:,:,k)+energy(:,:,k-1))))*&
-        (0.25_num*(energy(:,:,k)-energy(:,:,k-1))*(rho(:,:,k) +rho(:,:,k-1))/dzb(k) - &
-        0.5_num*(rho(:,:,k) +rho(:,:,k-1))*grav(k)/(gamma-1.0_num))
+    do k = nz+1, -1
+    init_pressure(k) = init_pressure(k+1) + 0.5_num*(rho(0,0,k) + rho(0,0,k+1))
     end do
 
-    rho(:,:,:) = density_init
+    IF (proc_z_min .ne. MPI_PROC_NULL) THEN
+      CALL MPI_RECV(rho(:,:,-1),(nx+4)*(ny+4),mpireal,proc_z_min,tag,comm,status,errcode)
+      CALL MPI_RECV(energy(:,:,-1),(nx+4)*(ny+4),mpireal,proc_z_min,tag,comm,status,errcode)
+    ENDIF
+
+    !Set up hydrostatic equilibrium (from the flux emergence code).
+    !Not entirely sure what this is doing... But it does seem to work.
+    DO ix = -1,nx+2
+       DO iy = -1,ny+2
+          DO iz = 0,nz+2
+             dg = 1.0_num/(dzb(iz)+dzb(iz-1))
+             rho(ix,iy,iz) = rho(ix,iy,iz-1)*(energy(ix,iy,iz-1)/dzc(iz-1)*(gamma-1.0_num) &
+                  - grav(iz-1)*dzb(iz-1)*dg)
+             rho(ix,iy,iz) = rho(ix,iy,iz)/(energy(ix,iy,iz)/dzc(iz-1)*(gamma-1.0_num) &
+                  + grav(iz-1)*dzb(iz)*dg)
+          END DO
+       END DO
+    END DO
+
+    !Add a constant to the density so the top is the reference
+    rho(:,:,:) = rho(:,:,:) - (rho(nx/2,ny/2,nz) - density_init)
+    print*, maxval(rho), minval(rho)
+
+    IF (proc_z_max .ne. MPI_PROC_NULL) THEN
+      CALL MPI_SEND(rho(:,:,nz-1),(nx+4)*(ny+4),mpireal,proc_z_max,tag,comm,errcode)
+      CALL MPI_SEND(energy(:,:,nz-1),(nx+4)*(ny+4),mpireal,proc_z_max,tag,comm,errcode)
+    ENDIF
+
+
+    !rho(:,:,:) = density_init
     density_init = rho(0,0,1)  !Switch to bottom reference
 
     if (rank == 0) then

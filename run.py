@@ -69,7 +69,7 @@ eta = 1e-6
 
 nu0_decay = 0.0
 
-energy_factor = 0.2
+energy_factor = 0.0
 zstar = 0.2
 chromosphere_temp = 1./150.
 
