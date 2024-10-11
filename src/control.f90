@@ -90,7 +90,6 @@ CONTAINS
     CLOSE(1)
 
     data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
-    correction_factor = 0.0
 
     run_id = vars(1)
     ! Set the number of gridpoints in x and y directions
@@ -109,6 +108,10 @@ CONTAINS
     !Initial variables
     density_init = vars(18)
     energy_init = vars(19)
+
+    correction_factor = vars(20)
+    zstar = vars(21)
+    chromosphere_temp = vars(22)
 
     ! Shock viscosities as detailed in manual - they are dimensionless
     visc1 = 0.1_num
