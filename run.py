@@ -47,9 +47,9 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-nx = 64
-ny = 64
-nz = 64
+nx = 192
+ny = 192
+nz = 192
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.

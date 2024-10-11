@@ -111,8 +111,8 @@ CONTAINS
     END DO
 
     !Add a constant to the density so the top is the reference
-    rho(:,:,:) = rho(:,:,:) - (rho(nx/2,ny/2,nz) - density_init)
-    print*, maxval(rho), minval(rho)
+    !rho(:,:,:) = rho(:,:,:) - (rho(nx/2,ny/2,nz) - density_init)
+    !print*, maxval(rho), minval(rho)
 
     IF (proc_z_max .ne. MPI_PROC_NULL) THEN
       CALL MPI_SEND(rho(:,:,nz-1),(nx+4)*(ny+4),mpireal,proc_z_max,tag,comm,errcode)
