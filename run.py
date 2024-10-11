@@ -61,9 +61,9 @@ bfact = 1.0
 density_init = 1.0
 energy_init = 1.5e-2
 
-nplots = 200
+nplots = 1000
 ndiags = 1000
-tmax = 50.0
+tmax = 1000.0
 
 eta = 1e-6
 

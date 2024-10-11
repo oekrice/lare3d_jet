@@ -141,7 +141,7 @@ for plot_num in range(0,nsnaps,1):
     else:
         beta = 0.0*pr[1:-1,slice_index,1:-1].T
 
-    if False:
+    if True:
         trace_fieldlines(Grid(),bx,by,bz,save=plot_num,plot_vista = False, plot_notvista = True)
 
     if True:
