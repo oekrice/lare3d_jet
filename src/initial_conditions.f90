@@ -67,7 +67,7 @@ CONTAINS
     end do
     end do
 
-    vz(:,:,1:nz+2) = 0.1_num
+    vz(:,:,:) = 0.0_num
 
     rho(-1:nx+2,-1:ny+2,-1:nz+2) = density_init
 
@@ -95,11 +95,6 @@ CONTAINS
 
     rho(:,:,:) = density_init
     density_init = rho(0,0,1)  !Switch to bottom reference
-
-    do k = 1, nz+2
-      vz(:,:,k) = 0.0_num*(zb(k)/zb_global(nz_global))**2
-    end do
-
 
     if (rank == 0) then
       print*, 'energy init', energy_init
