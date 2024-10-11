@@ -47,13 +47,13 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-nx = 128
-ny = 128
-nz = 128
+nx = 64
+ny = 64
+nz = 64
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
-z0 = -1.0/ny; z1 = 24
+z0 = -24.0/ny; z1 = 24
 
 shearfact = 3.7e-5
 bfact = 1.0
@@ -61,13 +61,17 @@ bfact = 1.0
 density_init = 1.0
 energy_init = 1.5e-2
 
-nplots = 1000
+nplots = 500
 ndiags = 1000
-tmax = 1000.0
+tmax = 500.0
 
 eta = 1e-6
 
 nu0_decay = 0.0
+
+energy_factor = 0.2
+zstar = 0.2
+chromosphere_temp = 1./150.
 
 variables = np.zeros((30))
 
@@ -90,6 +94,10 @@ variables[15] = nz
 variables[16] = hamilton_flag
 variables[17] = density_init
 variables[18] = energy_init
+variables[19] = energy_factor
+variables[20] = zstar
+variables[21] = chromosphere_temp
+
 
 if True:
     class Grid():

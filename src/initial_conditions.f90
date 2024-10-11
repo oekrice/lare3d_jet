@@ -48,7 +48,7 @@ CONTAINS
     REAL(num), DIMENSION(:,:,:), ALLOCATABLE :: temperature
     REAL(num) :: xi_v, amp, centre, width
     INTEGER:: i,j,k
-    REAL(num):: p0, temp_b
+    REAL(num):: p0, deltaz
     REAL(num), DIMENSION(:), ALLOCATABLE:: init_pressure !Initial pressure field (1D)
 
     ! Below are all the variables which must be defined and their sizes
@@ -67,11 +67,13 @@ CONTAINS
     end do
     end do
 
+    vz(:,:,:) = 0.0_num
+
     rho(-1:nx+2,-1:ny+2,-1:nz+2) = density_init
 
-    temp_b = 1.0_num
+    deltaz = zstar/10.0
     do k = -1, nz+2
-       energy(:,:,k) = energy_init*(1.0_num + 0.5_num*(temp_b-1.0_num)*(1.0_num-tanh((zb(k)-1.0_num)/0.1_num)))
+       energy(:,:,k) = energy_init*(1.0_num + 0.5_num*(chromosphere_temp-1.0_num)*(1.0_num-tanh((zb(k)-zstar)/0.1_num)))
     end do
 
     energy_reference = energy
@@ -93,11 +95,6 @@ CONTAINS
 
     rho(:,:,:) = density_init
     density_init = rho(0,0,1)  !Switch to bottom reference
-
-    do k = 1, nz+2
-      vz(:,:,k) = 0.0_num*(zb(k)/zb_global(nz_global))**2
-    end do
-
 
     if (rank == 0) then
       print*, 'energy init', energy_init
