@@ -80,7 +80,7 @@ CONTAINS
 
     energy = energy_init
 
-    grav(-1:nz+2) = 1e-4
+    grav(-1:nz+2) = 0.0001_num!'Real' value would be around 1e-4
 
     ALLOCATE(init_pressure(-1:nz+2))
 
@@ -97,7 +97,7 @@ CONTAINS
     ENDIF
 
     !Set up hydrostatic equilibrium (from the flux emergence code).
-    !Not entirely sure what this is doing... But it does seem to work.
+    !Not entirely sure what this is doing... But it does seem to work for constant internal energy
     DO ix = -1,nx+2
        DO iy = -1,ny+2
           DO iz = 0,nz+2
@@ -110,7 +110,7 @@ CONTAINS
        END DO
     END DO
 
-    !Add a constant to the density so the top is the reference
+    !Add a constant to the density so the top is the reference (doesn't work with MPI...)
     !rho(:,:,:) = rho(:,:,:) - (rho(nx/2,ny/2,nz) - density_init)
     !print*, maxval(rho), minval(rho)
 

@@ -69,9 +69,9 @@ eta = 1e-6
 
 nu0_decay = 0.0
 
-energy_factor = 0.0
-zstar = 0.2
-chromosphere_temp = 1./150.
+energy_factor = 0.1
+zstar = 24.0/ny
+chromosphere_temp = 1/150
 
 variables = np.zeros((30))
 
