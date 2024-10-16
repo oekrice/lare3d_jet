@@ -126,9 +126,25 @@ for plot_num in range(0,nsnaps,1):
     vy = np.swapaxes(data.variables['vy'][:],0,2)
     vz = np.swapaxes(data.variables['vz'][:],0,2)
 
+
+    jx = np.zeros((nx+2,ny+1,nz+1))
+    jy = np.zeros((nx+1,ny+2,nz+1))
+    jz = np.zeros((nx+1,ny+1,nz+2))
+
+    jx[1:-1,:,:] = np.swapaxes(data.variables['jx'][:],0,2)
+    jy[:,1:-1,:] = np.swapaxes(data.variables['jy'][:],0,2)
+    jz[:,:,1:-1] = np.swapaxes(data.variables['jz'][:],0,2)
+
     pr = rho*en*(2/3)
 
     data.close()
+
+    def current_test(bx,by,bz):
+        jx = (bz[1:-1,1:,:] - bz[1:-1,:-1,:])/dy - (by[1:-1,:,1:] - by[1:-1,:,:-1])/dz
+        jy =  (bx[:,1:-1,1:] - bx[:,1:-1,:-1])/dz - (bz[1:,1:-1,:] - bz[:-1,1:-1,:])/dx
+        jz =  (by[1:,:,1:-1] - by[:-1,:,1:-1])/dx - (bx[:,1:,1:-1] - bx[:,:-1,1:-1])/dy
+
+        print(np.max(jx), np.max(jy), np.max(jz))
 
     def magfield(bx, by, bz):
         bx1 = 0.5*(bx[1:,slice_index,1:-1] + bx[:-1,slice_index,1:-1])
@@ -141,11 +157,13 @@ for plot_num in range(0,nsnaps,1):
     else:
         beta = 0.0*pr[1:-1,slice_index,1:-1].T
 
+    current_test(bx, by, bz)
+
     if False:
         trace_fieldlines(Grid(),bx,by,bz,save=plot_num,plot_vista = False, plot_notvista = True)
 
     if True:
-        fig, axs = plt.subplots(3,4, figsize = (10,6))
+        fig, axs = plt.subplots(4,4, figsize = (10,10))
 
         def find_a(bx, bz):   #find the vector potential a from the (hopefully) divergence-free magnetic fields
             a = np.zeros((nx, nz))
@@ -204,6 +222,20 @@ for plot_num in range(0,nsnaps,1):
         im = axs[2,2].pcolormesh(xc,yc,bz[1:-1,1:-1,0])
         plt.colorbar(im, ax=axs[2,2])
         axs[2,2].set_title('Surface Bz')
+
+        print(np.shape(jx), np.shape(xs), np.shape(zc))
+        im = axs[3,0].pcolormesh(xs,zc,jx[1:-1,slice_index,1:-1].T)
+        plt.colorbar(im, ax=axs[3,0])
+        axs[3,0].set_title('Current jx')
+
+        im = axs[3,1].pcolormesh(xc,zc,jy[1:-1,slice_index,1:-1].T)
+        plt.colorbar(im, ax=axs[3,1])
+        axs[3,1].set_title('Current jy')
+
+        im = axs[3,2].pcolormesh(xc,zs,jz[1:-1,slice_index,1:-1].T)
+        plt.colorbar(im, ax=axs[3,2])
+        axs[3,2].set_title('Current jz')
+
 
         print(beta[slice_index, slice_index])
         plt.tight_layout()

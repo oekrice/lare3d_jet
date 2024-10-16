@@ -182,7 +182,7 @@ CONTAINS
     by = by*bfield_fact
     bz = bz*bfield_fact
 
-    !print*, 'shape bz', shape(bz), shape(bz_surf_reference)
+
 
     CALL bfield_bcs
 

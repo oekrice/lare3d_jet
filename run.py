@@ -61,9 +61,9 @@ bfact = 1.0
 density_init = 1.0
 energy_init = 1.5e-2
 
-nplots = 500
+nplots = 600
 ndiags = 1000
-tmax = 500.0
+tmax = 600.0
 
 eta = 1e-6
 
@@ -71,7 +71,7 @@ nu0_decay = 0.0
 
 energy_factor = 0.1
 zstar = 24.0/nz
-chromosphere_temp = 1.0
+chromosphere_temp = 1.0/150.0
 
 variables = np.zeros((30))
 

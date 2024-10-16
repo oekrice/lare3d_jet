@@ -242,10 +242,15 @@ class compute_initial_condition():
         #self.by = np.zeros((self.nx+2,self.ny+1,self.nz+2))
         #self.bz = np.zeros((self.nx+2,self.ny+2,self.nz+1))
 
+        print('sum abs bx', np.sum(np.abs(self.bx[:,1:-1,1:-1])))
+        print('sum abs by', np.sum(np.abs(self.by[1:-1,:,1:-1])))
+        print('sum abs bz', np.sum(np.abs(self.bz[1:-1,1:-1,:])))
+        print('ds', self.dx, self.dy, self.dz)
         #Test currents (including those on the boundaries, as required for A update)
         jx = (self.bz[1:-1,1:,:] - self.bz[1:-1,:-1,:])/self.dy - (self.by[1:-1,:,1:] - self.by[1:-1,:,:-1])/self.dz
         jy =  (self.bx[:,1:-1,1:] - self.bx[:,1:-1,:-1])/self.dz - (self.bz[1:,1:-1,:] - self.bz[:-1,1:-1,:])/self.dx
         jz =  (self.by[1:,:,1:-1] - self.by[:-1,:,1:-1])/self.dx - (self.bx[:,1:,1:-1] - self.bx[:,:-1,1:-1])/self.dy
+
 
         print('Max currents', np.max(np.abs(jx)),np.max(np.abs(jy)),np.max(np.abs(jz)))
         print('----------------------------------------------')
