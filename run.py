@@ -47,9 +47,9 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
-nx = 192
-ny = 192
-nz = 192
+nx = 64
+ny = 64
+nz = 64
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
@@ -70,8 +70,8 @@ eta = 1e-6
 nu0_decay = 0.0
 
 energy_factor = 0.1
-zstar = 24.0/ny
-chromosphere_temp = 1/150
+zstar = 24.0/nz
+chromosphere_temp = 1.0
 
 variables = np.zeros((30))
 

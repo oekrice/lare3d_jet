@@ -93,8 +93,10 @@ SUBROUTINE output_snap(snap_num)
     INTEGER:: xs_id, ys_id, zs_id
     INTEGER:: xc_id, yc_id, zc_id
     INTEGER:: bx_id, by_id, bz_id
+    INTEGER:: jx_id, jy_id, jz_id
     INTEGER:: en_id, rho_id
     INTEGER:: vx_id, vy_id, vz_id
+
 
     if (remote_flag > 0.5_num) then
       if (snap_num < 10) then
@@ -134,6 +136,10 @@ SUBROUTINE output_snap(snap_num)
     call try(nf90_def_var(ncid, 'by', nf90_double, (/xc_id ,ys_id, zc_id/), by_id))
     call try(nf90_def_var(ncid, 'bz', nf90_double, (/xc_id ,yc_id, zs_id/), bz_id))
 
+    call try(nf90_def_var(ncid, 'jx', nf90_double, (/xc_id ,ys_id, zs_id/), jx_id))
+    call try(nf90_def_var(ncid, 'jy', nf90_double, (/xs_id ,yc_id, zs_id/), jy_id))
+    call try(nf90_def_var(ncid, 'jz', nf90_double, (/xs_id ,ys_id, zc_id/), jz_id))
+
     call try(nf90_def_var(ncid, 'en', nf90_double, (/xc_id ,yc_id, zc_id/), en_id))
     call try(nf90_def_var(ncid, 'rho', nf90_double, (/xc_id ,yc_id, zc_id/), rho_id))
 
@@ -141,15 +147,19 @@ SUBROUTINE output_snap(snap_num)
     call try(nf90_def_var(ncid, 'vy', nf90_double, (/xs_id ,ys_id, zs_id/), vy_id))
     call try(nf90_def_var(ncid, 'vz', nf90_double, (/xs_id ,ys_id, zs_id/), vz_id))
 
-
     call try(nf90_enddef(ncid))
     call try(nf90_close(ncid))
 
     end if
     call MPI_BARRIER(comm,errcode)
 
+    !Calculate current density (as this isn't done explicitly anywhere else
+
+
+
     !Each process writes data in turn
 
+    !print*, shape(jx), shape(jy), shape(jz)
     do proc_write = 0 ,nproc-1
         call MPI_BARRIER(comm,errcode)
 
@@ -167,6 +177,19 @@ SUBROUTINE output_snap(snap_num)
             call try(nf90_inq_varid(ncid, 'bz', vid))
             call try(nf90_put_var(ncid, vid, bz(1:nx,1:ny,0:nz), &
                  start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz+1/)))
+
+            !call try(nf90_inq_varid(ncid, 'jx', vid))
+            !call try(nf90_put_var(ncid, vid, jx(0:nx,1:ny,1:nz), &
+            !start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx+1,ny,nz/)))
+
+            !call try(nf90_inq_varid(ncid, 'jy', vid))
+            !call try(nf90_put_var(ncid, vid, jy(1:nx,0:ny,1:nz), &
+            !start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny+1,nz/)))
+
+            !call try(nf90_inq_varid(ncid, 'jz', vid))
+            !call try(nf90_put_var(ncid, vid, jz(1:nx,1:ny,0:nz), &
+            !     start = (/starts(1)+1,starts(2) + 1, starts(3) + 1/),count = (/nx,ny,nz+1/)))
+
 
             call try(nf90_inq_varid(ncid, 'en', vid))
             call try(nf90_put_var(ncid, vid, energy(1:nx,1:ny,1:nz), &
