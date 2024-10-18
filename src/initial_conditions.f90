@@ -182,8 +182,6 @@ CONTAINS
     by = by*bfield_fact
     bz = bz*bfield_fact
 
-
-
     CALL bfield_bcs
 
     allocate(bz_surf_reference(0:nx+1, 0:ny+1))
