@@ -39,6 +39,8 @@ if False:
 paths = ['./Data_unstratified/', './Data_stratified/']
 titles = ['Unstratified', 'Stratified']
 for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
+    print('Dealing with field number', strat_flag)
+    print('_______________________________________')
     path = paths[strat_flag]
     file2read = netcdf_file(path+'%04d.nc'% snap_id,'r')
 
@@ -186,8 +188,8 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     lz = grid_spacing[2]*ncells
 
     #set number of points used to calculate the distribution from
-    nx = 10
-    ny = 10
+    nx = 20
+    ny = 20
 
     # set a minimum strength of field line cut off
     bCut = 0.01
@@ -238,7 +240,7 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
 for strat_flag in range(2):
     im = axes[strat_flag].imshow(flhs[strat_flag],origin='lower',cmap='seismic')
     axes[strat_flag].set_title(titles[strat_flag])
-    fig.colorbar(im)
+    fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Field-line helicities')
 plt.show()
 
@@ -248,7 +250,7 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
 for strat_flag in range(2):
     im = axes[strat_flag].imshow(flws[strat_flag],origin='lower',cmap='seismic')
     axes[strat_flag].set_title(titles[strat_flag])
-    fig.colorbar(im)
+    fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Field-line windings')
 plt.show()
 
@@ -260,7 +262,7 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
 for strat_flag in range(2):
     im = axes[strat_flag].imshow(flhBzs[strat_flag],origin='lower',cmap='seismic')
     axes[strat_flag].set_title(titles[strat_flag])
-    fig.colorbar(im)
+    fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Weighted Field-line helicities')
 plt.show()
 
@@ -272,7 +274,7 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
 for strat_flag in range(2):
     im = axes[strat_flag].imshow(twistFs[strat_flag],origin='lower',cmap='seismic')
     axes[strat_flag].set_title(titles[strat_flag])
-    fig.colorbar(im)
+    fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Twists')
 plt.show()
 
