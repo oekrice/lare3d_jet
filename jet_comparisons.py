@@ -18,14 +18,14 @@ from scipy.io import netcdf_file
 import os
 # Code to compare field line quanitites (twist, helicity) etc. between the stratified and unstratified jet simulations
 
-snap_id = 0   #number of the snap to compare
+snap_id = 200   #number of the snap to compare
 
 copy = True #copy over from archie-west
 
 flhs = []; flws = []; flhBzs = []; twistFs = []
 
 # In[65]:
-if False:
+if True:
     if not os.path.exists('./Data_stratified/'):
         os.mkdir('./Data_stratified/')
     if not os.path.exists('./Data_unstratified/'):
@@ -138,7 +138,6 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
 
     # In[1]:
 
-
     #Check the curl comps
 
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(10, 4))
@@ -146,6 +145,7 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     axes[1].imshow(twistDensity[:,:,20], origin='lower')
     axes[2].imshow(twistDensity[:,:,40], origin='lower')
     fig.tight_layout()
+    plt.savefig('extra_plots/1.png')
     plt.close()
 
 
@@ -159,6 +159,8 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     axes[1].imshow(testFLHDen[:,:,20].T, origin='lower')
     axes[2].imshow(testFLHDen[:,:,40].T, origin='lower')
     fig.tight_layout()
+    plt.savefig('extra_plots/2.png')
+
     plt.close()
 
 
@@ -172,6 +174,8 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     axes[1].imshow(testWindDen[:,:,20].T, origin='lower')
     axes[2].imshow(testWindDen[:,:,40].T, origin='lower')
     fig.tight_layout()
+    plt.savefig('extra_plots/3.png')
+
     plt.close()
 
 
@@ -188,8 +192,8 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     lz = grid_spacing[2]*ncells
 
     #set number of points used to calculate the distribution from
-    nx = 20
-    ny = 20
+    nx = 200
+    ny = 200
 
     # set a minimum strength of field line cut off
     bCut = 0.01
@@ -242,6 +246,8 @@ for strat_flag in range(2):
     axes[strat_flag].set_title(titles[strat_flag])
     fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Field-line helicities')
+plt.savefig('extra_plots/4.png')
+
 plt.show()
 
 # In[45]:
@@ -252,6 +258,8 @@ for strat_flag in range(2):
     axes[strat_flag].set_title(titles[strat_flag])
     fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Field-line windings')
+plt.savefig('extra_plots/5.png')
+
 plt.show()
 
 
@@ -264,6 +272,8 @@ for strat_flag in range(2):
     axes[strat_flag].set_title(titles[strat_flag])
     fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Weighted Field-line helicities')
+plt.savefig('extra_plots/6.png')
+
 plt.show()
 
 
@@ -276,6 +286,7 @@ for strat_flag in range(2):
     axes[strat_flag].set_title(titles[strat_flag])
     fig.colorbar(im, ax=axes[strat_flag])
 plt.suptitle('Twists')
+plt.savefig('extra_plots/7.png')
 plt.show()
 
 
