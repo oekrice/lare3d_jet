@@ -47,6 +47,12 @@ if os.path.isdir(data_directory):
 else:
     os.mkdir(data_directory)
 
+if not os.path.isdir('./inits'):
+    os.mkdir('./inits')
+
+if not os.path.isdir('./parameters'):
+    os.mkdir('./parameters')
+
 nx = 64
 ny = 64
 nz = 64
@@ -71,7 +77,7 @@ nu0_decay = 0.0
 
 energy_factor = 0.1
 zstar = 24.0/nz
-chromosphere_temp = 1.0/150.0
+chromosphere_temp = 1.0
 
 variables = np.zeros((30))
 
