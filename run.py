@@ -55,6 +55,10 @@ if not os.path.isdir('./inits'):
 if not os.path.isdir('./parameters'):
     os.mkdir('./parameters')
 
+if not os.path.isdir('./diagnostics'):
+    os.mkdir('./diagnostics')
+
+
 nx = 64
 ny = 64
 nz = 64
