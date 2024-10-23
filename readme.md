@@ -51,6 +51,8 @@ LARE is then run by calling mpiexec or equivalent. Some examples:
 
 ```
   /usr/lib64/openmpi/bin/mpiexec -np 1 ./bin/lare3d 0
+```
+```
   mpirun ./bin/lare3d 0
 ```
 depending on where your MPI is stored. `-np' is the number of processes, which is automatically determined by the machine on an HPC. The `0` is again the run number.
