@@ -57,9 +57,9 @@ mpirun ./bin/lare3d 0
 ```
 depending on where your MPI is stored. `-np` is the number of processes, which is automatically determined by the machine on an HPC. The `0` is again the run number.
 
-This should print out various information, and save files to `./Data/', or wherever else has been specified.
+This should print out various information, and save files to `./Data/`, or wherever else has been specified.
 
-A common error is ` No such file or directory NetCDF: Not a valid ID', which is usually because the output filenames have gone wrong.
+A common error is `No such file or directory NetCDF: Not a valid ID`, which is usually because the output filenames have gone wrong.
 
 # To plot things
 
