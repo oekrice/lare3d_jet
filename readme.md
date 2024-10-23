@@ -63,7 +63,7 @@ A common error is `No such file or directory NetCDF: Not a valid ID`, which is u
 
 # To plot things
 
-The plotting wrapper is called `plotslice.py', which can be run just by using 
+The plotting wrapper is called `plotslice.py`, which can be run just by using 
 ```
 python plotslice.py
 ```
