@@ -35,6 +35,8 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
 else:
     hamilton_flag = 1
 
+hamilton_flag = 1
+
 if not hamilton_flag:
     data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
 else:
