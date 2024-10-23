@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 # lare3d_jet
-lare3d for the Pariat jet model
+My version of LARE3D, set up for the Solar Jet model of Pariat (2009). Uses a modern version of LARE but with some considerable modifications: SDF has been removed as it's a nightmare to compile and doesn't seem to have any advantages over NETCDF, which is seemingly ubiquitous these days. A python wrapper has been added to read in parameters in run time to avoid recompliling and theoretically allow for c+
 
 For the full LARE readme look for readme_lare.md or equivalent, which explains more about how the code actually works. This readme should explain how to get the jet model to run.
 
