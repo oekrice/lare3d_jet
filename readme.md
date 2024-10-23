@@ -19,10 +19,48 @@ This requires the use of one of the Makefiles. Two are provided: one which works
 ```
   scp Makefile_gfortran Makefile
 ```
+or 
 
+```
+  scp Makefile_intel Makefile
+```
 Then update the module locations for MPIF90 and the NETCDF libraries (near the top of the file). On the HPCs I've used the locations of such things can be obtained using 
 
 ```
   module show netcdf-fortran/intel-2020.4/4.5.4
 ```
 or equivalent, but finding them can be tricky.
+
+If this has been done correctly, the code can then be compiled merely with 
+
+```
+  make
+```
+
+# To run the code 
+
+Before actually running the Fortran code, there is some setup to be done. The python wrapper 'run.py' is used to define various variables (resolutions, boundaries, number of plots etc.), which are then saved to a 'parameters' file and read in to Fortran in real time. The initial condition (PFSS) is also called in this file. I recommend running this on a login node before running the bash script to get Fortran actually going. As is, the code is set up on a 64^3 grid which should produce an eruption and not take too long. 
+
+```
+  python run.py 0
+```
+
+where the 0 is the `run number' -  a functionality that doesn't yet work but would be used for multiple runs.
+
+LARE is then run by calling mpiexec or equivalent. Some examples:
+
+```
+  /usr/lib64/openmpi/bin/mpiexec -np 1 ./bin/lare3d 0
+```
+```
+  mpirun ./bin/lare3d 0
+```
+depending on where your MPI is stored. `-np' is the number of processes, which is automatically determined by the machine on an HPC. The `0` is again the run number.
+
+This should print out various information, and save files to `./Data/', or wherever else has been specified.
+
+
+
+
+
+
