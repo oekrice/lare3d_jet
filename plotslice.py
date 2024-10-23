@@ -159,7 +159,7 @@ for plot_num in range(0,nsnaps,1):
 
     current_test(bx, by, bz)
 
-    if False:
+    if True:
         trace_fieldlines(Grid(),bx,by,bz,save=plot_num,plot_vista = False, plot_notvista = True)
 
     if True:
