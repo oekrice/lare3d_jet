@@ -34,7 +34,7 @@ or equivalent, but finding them can be tricky.
 If this has been done correctly, the code can then be compiled merely with 
 
 ```
-  make
+make
 ```
 
 # To run the code 
@@ -42,7 +42,7 @@ If this has been done correctly, the code can then be compiled merely with
 Before actually running the Fortran code, there is some setup to be done. The python wrapper 'run.py' is used to define various variables (resolutions, boundaries, number of plots etc.), which are then saved to a 'parameters' file and read in to Fortran in real time. The initial condition (PFSS) is also called in this file. I recommend running this on a login node before running the bash script to get Fortran actually going. As is, the code is set up on a 64^3 grid which should produce an eruption and not take too long. 
 
 ```
-  python run.py 0
+python run.py 0
 ```
 
 where the 0 is the `run number' -  a functionality that doesn't yet work but would be used for multiple runs.
@@ -50,16 +50,24 @@ where the 0 is the `run number' -  a functionality that doesn't yet work but wou
 LARE is then run by calling mpiexec or equivalent. Some examples:
 
 ```
-  /usr/lib64/openmpi/bin/mpiexec -np 1 ./bin/lare3d 0
+/usr/lib64/openmpi/bin/mpiexec -np 1 ./bin/lare3d 0
 ```
 ```
-  mpirun ./bin/lare3d 0
+mpirun ./bin/lare3d 0
 ```
-depending on where your MPI is stored. `-np' is the number of processes, which is automatically determined by the machine on an HPC. The `0` is again the run number.
+depending on where your MPI is stored. `-np` is the number of processes, which is automatically determined by the machine on an HPC. The `0` is again the run number.
 
 This should print out various information, and save files to `./Data/', or wherever else has been specified.
 
+A common error is ` No such file or directory NetCDF: Not a valid ID', which is usually because the output filenames have gone wrong.
 
+# To plot things
+
+The plotting wrapper is called `plotslice.py', which can be run just by using 
+```
+python plotslice.py
+```
+This plots some colourmaps of cuts of things like the density and magnetic field, and also uses the field line tracer from fltrace.py for some visualisation. These are saved in `./plots'. There is an optional pyvista equivalent, which can be activated by setting `plot_vista = True' on line 163, and uncommenting the relevant imports at the top of fltrace.py. But pyvista doesn't work on every machine so it's left off by default.
 
 
 
