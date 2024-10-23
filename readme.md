@@ -69,6 +69,6 @@ python plotslice.py
 ```
 This plots some colourmaps of cuts of things like the density and magnetic field, and also uses the field line tracer from fltrace.py for some visualisation. These are saved in `./plots'. There is an optional pyvista equivalent, which can be activated by setting `plot_vista = True' on line 163, and uncommenting the relevant imports at the top of fltrace.py. But pyvista doesn't work on every machine so it's left off by default.
 
-
+The plotter can be set to run while LARE is still running, and it will wait in turn for each of the output files to be created. Then it will plot them.
 
 
