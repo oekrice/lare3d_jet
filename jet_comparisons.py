@@ -18,7 +18,7 @@ from scipy.io import netcdf_file
 import os
 # Code to compare field line quanitites (twist, helicity) etc. between the stratified and unstratified jet simulations
 
-snap_id = 200   #number of the snap to compare
+snap_id = 380   #number of the snap to compare
 
 copy = True #copy over from archie-west
 
@@ -31,13 +31,14 @@ if True:
     if not os.path.exists('./Data_unstratified/'):
         os.mkdir('./Data_unstratified/')
 
-    os.system('scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/lare3d_jet/Data_stratified/%04d.nc ./Data_stratified/' % snap_id)
-    os.system('scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/lare3d_jet/Data_unstratified/%04d.nc ./Data_unstratified/' % snap_id)
+    os.system('scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/lare3d_jet/Data_unstratified_192/%04d.nc ./Data_unstratified_192/' % snap_id)
+    os.system('scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/lare3d_jet/Data_verystratified_192/%04d.nc ./Data_verystratified_192/' % snap_id)
 
 # read in file
 
-paths = ['./Data_unstratified/', './Data_stratified/']
+paths = ['./Data_unstratified_192/', './Data_verystratified_192/']
 titles = ['Unstratified', 'Stratified']
+
 for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     print('Dealing with field number', strat_flag)
     print('_______________________________________')
