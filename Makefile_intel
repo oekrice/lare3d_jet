@@ -1,22 +1,11 @@
-# Specify a particular compiler with "make COMPILER=pgi", etc.
-# Specify debugging flags with "make MODE=debug"
-# Alternatively, these options can be specified as environment variables
-# eg. "export COMPILER=gfortran" can be added to $HOME/.bashrc
 D = -D
 FFLAGS = -O3
 
 MODULEFLAG = -I/usr/include -I $(OBJDIR) 
 
-ifeq ($(shell hostname),brilloiun.dur.ac.uk)
-	MPIF90 ?= /usr/lib64/openmpi/bin/mpif90
-	NETCDF = -I /usr/lib64/gfortran/modules
-	NETCDFLIB = -L/usr/lib64/libnetcdff.so.7 -lnetcdff
-else
-	MPIF90 ?= mpiifort
-	NETCDF = -I /opt/software/netcdf/intel-2020.4/fortran-4.5.4/include
-	NETCDFLIB = -L/opt/software/netcdf/intel-2020.4/fortran-4.5.4/lib  -lnetcdff 
-
-endif
+MPIF90 ?= mpiifort
+NETCDF = -I /opt/software/netcdf/intel-2020.4/fortran-4.5.4/include
+NETCDFLIB = -L/opt/software/netcdf/intel-2020.4/fortran-4.5.4/lib  -lnetcdff 
 
 FFLAGS += $(MODULEFLAG)
 LDFLAGS = $(FFLAGS)
