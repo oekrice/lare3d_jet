@@ -18,14 +18,14 @@ from scipy.io import netcdf_file
 import os
 # Code to compare field line quanitites (twist, helicity) etc. between the stratified and unstratified jet simulations
 
-snap_id = 380   #number of the snap to compare
+snap_id = 0   #number of the snap to compare
 
 copy = True #copy over from archie-west
 
 flhs = []; flws = []; flhBzs = []; twistFs = []
 
 # In[65]:
-if True:
+if False:
     if not os.path.exists('./Data_stratified/'):
         os.mkdir('./Data_stratified/')
     if not os.path.exists('./Data_unstratified/'):
@@ -36,7 +36,7 @@ if True:
 
 # read in file
 
-paths = ['./Data_unstratified_192/', './Data_verystratified_192/']
+paths = ['./Data_unstratified_64/', './Data_stratified_64/']
 titles = ['Unstratified', 'Stratified']
 
 for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
@@ -214,7 +214,6 @@ for strat_flag in range(2):   #do unstratified (top) and stratified (bottom)
     print('Tracing field lines')
 
     fieldLinesList,goodSeeds,seeds = flt.prepareCurves(bField,BxInterp,ByInterp,BzInterp,grid_spacing,[6,14],[6,14],zv,nx,ny,bCut)   #number ranges are the bounds to do the plotting (0-20)
-
 
     # In[ ]:
 

@@ -77,6 +77,8 @@ class Grid():
 
 i = 0
 
+remote_flag = 0
+
 if len(sys.argv) > 2:
     i = int(sys.argv[2])
 

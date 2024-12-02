@@ -35,8 +35,6 @@ if os.uname()[1] == 'brillouin.dur.ac.uk':
 else:
     hamilton_flag = 1
 
-hamilton_flag = 1
-
 if not hamilton_flag:
     data_directory = '/home/grads/trcn27/rdata/lare3d_jet/'
 else:
@@ -82,8 +80,8 @@ eta = 1e-6
 nu0_decay = 0.0
 
 energy_factor = 0.1
-zstar = 24.0/nz
-chromosphere_temp = 1.0
+zstar = 24.0/50.0
+chromosphere_temp = 1.0/150.0
 
 variables = np.zeros((30))
 
