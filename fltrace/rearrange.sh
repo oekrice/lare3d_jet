@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rm -r ./plots/*.png
-scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/flux_vanilla/fltrace/plots ./
+scp -r pjb20205@login.hpc.strath.ac.uk:/users/pjb20205/lare3d_jet/fltrace/plots ./
 
 
 counter=0

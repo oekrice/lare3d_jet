@@ -57,9 +57,9 @@ if not os.path.isdir('./diagnostics'):
     os.mkdir('./diagnostics')
 
 
-nx = 64
-ny = 64
-nz = 64
+nx = 256
+ny = 256
+nz = 256
 
 x0 = -12.; x1 = 12.
 y0 = -12.; y1 = 12.
@@ -72,7 +72,7 @@ density_init = 1.0
 energy_init = 1.5e-2
 
 nplots = 600
-ndiags = 1000
+ndiags = 3000
 tmax = 600.0
 
 eta = 1e-6
